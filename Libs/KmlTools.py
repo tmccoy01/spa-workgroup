@@ -141,7 +141,7 @@ class KmlCreator(object):
                 # pushpin is default shape
                 do_nothing = True
 
-    def add_folder(self, parent_folder, name=None):
+    def add_folder(self, parent_folder=None, name=None):
         if name is None:
             name = 'New Folder'
         if parent_folder is not None:
@@ -315,7 +315,7 @@ class KmlCreator(object):
             pol.style.linestyle.width = line_width
 
             if color is not None:
-                rgb_color = simplekml.Color.rgb([color[0], color[1], color[2]])
+                rgb_color = simplekml.Color.rgb(color[0], color[1], color[2])
                 alpha = int(255 * opacity/100)
                 pol.style.polystyle.color = simplekml.Color.changealphaint(alpha, rgb_color)
 
