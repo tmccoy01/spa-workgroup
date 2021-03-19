@@ -241,7 +241,7 @@ class KmlCreator(object):
             else:
                 self.add_point(lat_lon[0], lat_lon[1], shape=shape, color=color)
 
-    def add_diamond(self, lat, lon, size=None, filled=True, parent_node=None,
+    def add_diamond(self, lat, lon, size=1, filled=True, parent_node=None,
                     color=None, opacity=100, name=None, description=None):
         """
         This is a special point, made here as tiny polygon. The reason for this is to allow it to be of any color

@@ -1,6 +1,6 @@
 import collections
 import pandas as pd
-from Libs.constants import ERAM_PATH, RADAR_PATH
+from Libs.constants import DATA_PATH
 
 
 class Importer(object):
@@ -13,7 +13,7 @@ class Importer(object):
 
     def load_eram(self):
         """Only load in the ERAM information"""
-        ctvs = pd.read_excel(ERAM_PATH, sheet_name="CTV - En Route")
+        ctvs = pd.read_excel(DATA_PATH, sheet_name="CTV - En Route")
         current_id = None
         for row, id in enumerate(ctvs.ARTCC_ID):
             if isinstance(id, str):
@@ -28,15 +28,20 @@ class Importer(object):
 
     def load_radars(self):
         """Only load in the radar information"""
-        radar_df = pd.read_csv(RADAR_PATH)
+        radar_df = pd.read_excel(DATA_PATH, sheet_name="En Route Radars")
         self.radar_info = radar_df[
             [
-                'SVDDSite',
-                'RadarType',
-                'SVDDLID',
-                'Lat',
-                'Lon',
-                'PSR',
-                'SSR'
+                'Radar_Name',
+                'Radar_ID',
+                'Radar_Lat',
+                'Radar_Lon',
+                'PSR Type',
+                'SSR Type',
+                'Airspace_ID'
             ]
         ]
+
+
+    def load_radios(self):
+        """Only load in the radio locations"""
+        radio_df = pd.read
