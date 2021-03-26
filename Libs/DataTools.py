@@ -1,6 +1,7 @@
 import collections
 import pandas as pd
-from Libs.constants import DATA_PATH
+
+from Libs.constants import RADARS, RADIOS
 
 
 class Importer(object):
@@ -11,9 +12,9 @@ class Importer(object):
         self.radar_info = None
         self.radio_info = None
 
-    def load_eram(self):
-        """Only load in the ERAM information"""
-        ctvs = pd.read_excel(DATA_PATH, sheet_name="CTV - En Route")
+    def _load_eram(self, path):
+        """Load in the ERAM information"""
+        ctvs = pd.read_excel(path, sheet_name="CTV - En Route")
         current_id = None
         for row, id in enumerate(ctvs.ARTCC_ID):
             if isinstance(id, str):
@@ -26,9 +27,9 @@ class Importer(object):
                     [ctvs.CTV_Lat[row], ctvs.CTV_Lon[row]]
                 )
 
-    def load_radars(self):
-        """Only load in the radar information"""
-        radar_df = pd.read_excel(DATA_PATH, sheet_name="En Route Radars")
+    def _load_radars(self, path):
+        """Load in the radar information"""
+        radar_df = pd.read_excel(path, sheet_name="En Route Radars")
         self.radar_info = radar_df[
             [
                 'Radar_Name',
@@ -41,7 +42,22 @@ class Importer(object):
             ]
         ]
 
+    def _load_radios(self, path=RADIOS):
+        """Only load in the radio information"""
+        radio_df = pd.read_csv(path)
+        self.radio_info = radio_df[
+            [
+                'Alternate Location\n(Airport)',
+                'RSID',
+                'Latitude\n(Degrees)',
+                'Longitude\n(Degrees)',
+                'Enclosed By SV',
+                'ADS-B/WAM Usage'
+            ]
+        ]
 
-    def load_radios(self):
-        """Only load in the radio locations"""
-        radio_df = pd.read
+    def load_data(self, eram_path=RADARS, radar_path=RADARS, radio_path=RADIOS):
+        """Load in the ERAM, Radar, and Radio information all at once"""
+        self._load_eram(path=eram_path)
+        self._load_radars(path=radar_path)
+        self._load_radios(path=radio_path)
