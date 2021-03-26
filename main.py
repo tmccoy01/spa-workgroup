@@ -4,17 +4,26 @@ from Libs import (
 )
 
 
+def get_eram_info(eram):
+    artcc_sites = list(eram.keys())
+
+
+def plot_radars(kml, radars, node):
+    for ix, row in radars.iterrows():
+        kml.add_point(
+            row['Radar_Lat'],
+            row['Radar_Lon'],
+            parent_node=node,
+            color=[0xff, 0x00, 0x00],
+            name=row['Radar_ID'],
+            description=str(row['SSR Type']) + "_" + str(row['PSR Type']) + "\n" + row['Radar_Name']
+        )
+
+    return kml
+
+
 def plot_eram():
     """Test to load and plot the ERAM areas"""
-    # First load in the data
-    data = DataTools.Importer()
-    data.load_eram()
-    data.load_radars()
-    # Create a kml object
-    kml = KmlTools.KmlCreator()
-    kml.create_kml('please.kml')
-    # Get all the sites and loop through them
-    artcc_sites = list(data.eram_bounds.keys())
     eram_folder = kml.add_folder(name="ERAM Boundaries")
     for site in artcc_sites:
         curr_radars = data.radar_info[data.radar_info.Airspace_ID == site]
@@ -42,6 +51,17 @@ def plot_eram():
     kml.save()
 
 
-if __name__ == '__main__':
-    plot_eram()
+def main(file_name):
+    """Driver function to create the NAS Surveillance System Overview"""
+    # Load in the data
+    data = DataTools.Parser()
+    data.load_data()
+    # Create the kml
+    kml = KmlTools.KmlCreator()
+    kml.create_kml(file_name)
+    # Get ARTCC (ERAM) sites
+    eram_data = get_eram_info(data.eram_bounds)
 
+
+if __name__ == '__main__':
+    main('test.kml')
