@@ -23,25 +23,6 @@ class Parser(object):
         self.service_volumes['C'] = self._filter_sv(airspace_class='C')
         self.service_volumes['D'] = self._filter_sv(airspace_class='D')
 
-    def _load_eram(self, path):
-        """Load in the ERAM information"""
-        artcc_sites = pd.read_excel(path, sheet_name="EnRoute")
-        current_id = None
-        for row, id in enumerate(artcc_sites.ARTCC_ID):
-            if isinstance(id, str):
-                current_id = id
-                self.eram_bounds[id].append(
-                    [artcc_sites.SV_Lat[row], artcc_sites.SV_Lon[row]]
-                )
-            else:
-                self.eram_bounds[current_id].append(
-                    [artcc_sites.SV_Lat[row], artcc_sites.SV_Lon[row]]
-                )
-
-        # Create a map of ARTCC ID --> Service Volume ID
-        artcc_sites = artcc_sites[['ARTCC_ID', 'SV ID']].dropna()
-        self._sv_map = dict(zip(artcc_sites['ARTCC_ID'], artcc_sites['SV ID']))
-
     def _load_radars(self, path):
         """Load in the radar information"""
         radar_info = [
@@ -137,7 +118,7 @@ class SurveillanceSystem(object):
 
 
 class Terminal(SurveillanceSystem):
-    """Structure to hold all Terminal Service Volume information"""
+    """Terminal Service Volume Description"""
     def __init__(self, airspace_class):
         # Initialize the SurveillanceSystem super class
         super().__init__()
@@ -162,3 +143,32 @@ class Terminal(SurveillanceSystem):
                     int(self._airspace_df['SV_Range_NM'][row])
                 )
             )
+
+
+class EnRoute(SurveillanceSystem):
+    """Enroute Service Volume Description"""
+    def __init__(self, path=RADARS):
+        self.__load_bounds()
+
+    def radio_map(self, radios=None):
+        """Not yet implemented"""
+        pass
+
+    def __load_bounds(self, path):
+        """Load in the ERAM information"""
+        artcc_sites = pd.read_excel(path, sheet_name="EnRoute")
+        current_id = None
+        for row, id in enumerate(artcc_sites.ARTCC_ID):
+            if isinstance(id, str):
+                current_id = id
+                self.eram_bounds[id].append(
+                    [artcc_sites.SV_Lat[row], artcc_sites.SV_Lon[row]]
+                )
+            else:
+                self.eram_bounds[current_id].append(
+                    [artcc_sites.SV_Lat[row], artcc_sites.SV_Lon[row]]
+                )
+
+        # Create a map of ARTCC ID --> Service Volume ID
+        artcc_sites = artcc_sites[['ARTCC_ID', 'SV ID']].dropna()
+        self._sv_map = dict(zip(artcc_sites['ARTCC_ID'], artcc_sites['SV ID']))
