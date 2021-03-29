@@ -13,6 +13,7 @@ def plot_radars(kml, radars, node):
         kml.add_point(
             row['Radar_Lat'],
             row['Radar_Lon'],
+            shape='circle',
             parent_node=node,
             color=[0xff, 0x00, 0x00],
             name=row['Radar_ID'],

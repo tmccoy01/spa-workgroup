@@ -229,7 +229,7 @@ class KmlCreator(object):
             pnt.timestamp.when = time_stamp
         if description is not None:
             pnt.description = description
-        if  shape is not None:
+        if shape is not None:
             self.__set_point_icon_href(pnt, shape, color)
 
         return pnt

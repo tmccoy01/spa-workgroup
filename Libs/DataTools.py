@@ -6,18 +6,20 @@ from Libs.constants import RADARS, RADIOS
 
 class Parser(object):
     """Load in necessary data"""
+    # TODO: Refactor this to work more cleanly. Maybe, create a new datatype for the Radar's and Radio's?
     def __init__(self):
         self.eram_bounds = collections.defaultdict(list)
+        self.radio_map =
+        self.service_volumes = {}
         self.stars_bounds = {}
         self.enroute_radars = None
         self.terminal_radars = None
-        self.service_volumes = None
 
     def _load_service_volumes(self):
         """Load in all of the service volume information"""
-        self.service_volumes.classB = self._filter_sv(airspace_class='B')
-        self.service_volumes.classC = self._filter_sv(airspace_class='C')
-        self.service_volumes.classD = self._filter_sv(airspace_class='D')
+        self.service_volumes['B'] = self._filter_sv(airspace_class='B')
+        self.service_volumes['C'] = self._filter_sv(airspace_class='C')
+        self.service_volumes['D'] = self._filter_sv(airspace_class='D')
 
     def _load_eram(self, path):
         """Load in the ERAM information"""
@@ -33,6 +35,8 @@ class Parser(object):
                 self.eram_bounds[current_id].append(
                     [artcc_sites.SV_Lat[row], artcc_sites.SV_Lon[row]]
                 )
+
+
 
     def _load_radars(self, path):
         """Load in the radar information"""
@@ -74,13 +78,14 @@ class Parser(object):
         self._load_radios(path=radio_path)
         self._load_service_volumes()
 
+
     @staticmethod
     def _filter_sv(airspace_class=None, path=RADARS):
         """Load in the service volumes for a given airspace class"""
-        if not airspace_class:
-            sv_df = pd.read_excel(path, sheet_name=f'Terminal Class{airspace_class}')
-        else:
+        if airspace_class is None:
             sv_df = pd.read_excel(path, sheet_name='3rdPartySVs')
+        else:
+            sv_df = pd.read_excel(path, sheet_name=f'Terminal Class{airspace_class}')
         sv_df = sv_df[
             [
                 'SV ID',
