@@ -1,7 +1,7 @@
 import collections
 import pandas as pd
 
-from Libs.constants import RADARS, RADIOS
+from Libs.constants import RADARS, RADIOS, ERAM_SITES
 
 
 class Parser(object):
@@ -9,11 +9,12 @@ class Parser(object):
     # TODO: Refactor this to work more cleanly. Maybe, create a new datatype for the Radar's and Radio's?
     def __init__(self):
         self.eram_bounds = collections.defaultdict(list)
-        self.radio_map =
         self.service_volumes = {}
         self.stars_bounds = {}
         self.enroute_radars = None
         self.terminal_radars = None
+
+        self._sv_map = {}
 
     def _load_service_volumes(self):
         """Load in all of the service volume information"""
@@ -36,7 +37,9 @@ class Parser(object):
                     [artcc_sites.SV_Lat[row], artcc_sites.SV_Lon[row]]
                 )
 
-
+        # Create a map of ARTCC ID --> Service Volume ID
+        artcc_sites = artcc_sites[['ARTCC_ID', 'SV ID']].dropna()
+        self._sv_map = dict(zip(artcc_sites['ARTCC_ID'], artcc_sites['SV ID']))
 
     def _load_radars(self, path):
         """Load in the radar information"""
@@ -78,6 +81,14 @@ class Parser(object):
         self._load_radios(path=radio_path)
         self._load_service_volumes()
 
+    def map_radios(self, artcc_id=ERAM_SITES) -> dict:
+        """Create a dictionary mapping of ADS-B radios to ARTCC region"""
+        assert self.radio_info is not None
+        radio_ids = self.radio_info['RSID'].to_list()
+        radio_svs = [id.split('-')[0] for id in radio_ids]
+        for site in ERAM_SITES:
+            sv_id = self._sv_map[site]
+            radio_idx = [ix for ix, val in enumerate(radio_svs) if sv_id in val]
 
     @staticmethod
     def _filter_sv(airspace_class=None, path=RADARS):
@@ -97,4 +108,42 @@ class Parser(object):
         ]
 
         return sv_df
+
+
+class SurveillanceSystem(object):
+    """Main parent class to carry all data for NAS Surveillance Systems"""
+    def __init__(self, sv_path=RADARS, radio_path=RADIOS, radar_path=RADARS):
+        # Public attributes
+        self.sv_bounds = {}
+        self.radio_map = {}
+        self.radar_map = {}
+        # Private attributes
+        self._sv_path = sv_path
+        self._radio_path = radio_path
+        self._radar_path = radar_path
+
+    # TODO: Implement these two private methods below inside of the parent class
+    @staticmethod
+    def _map_radios():
+        """Placeholder until this is implemented"""
+        pass
+
+    @staticmethod
+    def _map_radars():
+        """Placeholder until this is implemented"""
+        pass
+
+
+class Terminal(SurveillanceSystem):
+    """Structure to hold all Terminal Service Volume information"""
+    def __init__(self, airspace_class):
+        super().__init__()
+        self._airspace_df= pd.read_excel(RADARS, sheet_name=f'Terminal Class{airspace_class}')
+        self._airspace_df = self._airspace_df[
+            'SV ID',
+            'Arpt_Name',
+            'SV_Lat',
+            'SV_Lon',
+            'SV_Range_NM'
+        ]
 

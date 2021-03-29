@@ -2,3 +2,9 @@
 DATA_PATH = "/Users/tannermccoy/Development/Work/config"
 RADARS = DATA_PATH + "/SBS_Service_Volume_Description_Document_v4.9.1_dated_2018-10-16.xlsx"
 RADIOS = DATA_PATH + "/SBS_Radio_Locations.csv"
+
+ERAM_SITES = [
+    'ZAB', 'ZAN', 'ZAU', 'ZBW', 'ZDC', 'ZDV', 'ZFW', 'ZHN', 'ZHU',
+    'ZID', 'ZJX', 'ZKC', 'ZLA', 'ZLC', 'ZMA', 'ZME', 'ZMP', 'ZNY',
+    'ZOA', 'ZOB', 'ZSE', 'ZSU', 'ZTL', 'ZUA', 'ZHU, MEX, MID, MTY'
+]
