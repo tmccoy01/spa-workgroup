@@ -1,6 +1,7 @@
 import collections
 import pandas as pd
 
+from Libs import GeoTools
 from Libs.constants import RADARS, RADIOS, ERAM_SITES
 
 
@@ -114,13 +115,14 @@ class SurveillanceSystem(object):
     """Main parent class to carry all data for NAS Surveillance Systems"""
     def __init__(self, sv_path=RADARS, radio_path=RADIOS, radar_path=RADARS):
         # Public attributes
-        self.sv_bounds = {}
+        self.sv_bounds = collections.defaultdict(list)
         self.radio_map = {}
         self.radar_map = {}
         # Private attributes
         self._sv_path = sv_path
         self._radio_path = radio_path
         self._radar_path = radar_path
+        self._geo = GeoTools.Geo()
 
     # TODO: Implement these two private methods below inside of the parent class
     @staticmethod
@@ -137,13 +139,26 @@ class SurveillanceSystem(object):
 class Terminal(SurveillanceSystem):
     """Structure to hold all Terminal Service Volume information"""
     def __init__(self, airspace_class):
+        # Initialize the SurveillanceSystem super class
         super().__init__()
-        self._airspace_df= pd.read_excel(RADARS, sheet_name=f'Terminal Class{airspace_class}')
-        self._airspace_df = self._airspace_df[
-            'SV ID',
-            'Arpt_Name',
-            'SV_Lat',
-            'SV_Lon',
-            'SV_Range_NM'
-        ]
 
+        # Load in the correct airspace data
+        self._airspace_df = pd.read_excel(RADARS, sheet_name=f'Terminal Class{airspace_class}')
+        self._airspace_df = self._airspace_df[
+            [
+                'SV ID',
+                'Arpt_Name',
+                'SV_Lat',
+                'SV_Lon',
+                'SV_Range_NM'
+            ]
+        ].dropna()
+
+        # Parse out the bounds for each sv region
+        for row, id in enumerate(self._airspace_df['SV ID']):
+            self.sv_bounds[id].append(
+                self._geo.lat_lon_circle(
+                    self._airspace_df['SV_Lat'][row], self._airspace_df['SV_Lon'][row],
+                    int(self._airspace_df['SV_Range_NM'][row])
+                )
+            )
