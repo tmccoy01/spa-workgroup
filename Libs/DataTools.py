@@ -2,7 +2,7 @@ import collections
 import pandas as pd
 
 from Libs import GeoTools
-from Libs.constants import RADARS, RADIOS, ERAM_SITES
+from Libs.constants import RADARS, RADIOS
 
 
 class SurveillanceSystem(object):
@@ -89,9 +89,26 @@ class EnRoute(SurveillanceSystem):
         self.sv_map = dict(zip(artcc_sites['ARTCC_ID'], artcc_sites['SV ID']))
 
 
-class Radios(object):
-    """Gather all pertinent information for all radios"""
+class SurveillanceSource(object):
+    """Gather all information for a given surveillance source"""
+    def __init__(self, path: str) -> None:
+        self.__path = path
+        self.sensors = None
+        self.__load_sensors()
+
+    def plot(self):
+        """Not yet implemented"""
+        pass
+
+    def __load_sensors(self, sheet_name=None, header=None):
+        """Simple base function to load in sensor info"""
+        self.sensors = pd.read_excel(self.__path, sheet_name=sheet_name, header=header)
+
+
+class Radios(SurveillanceSource):
+    """Gather all pertinent information for radios"""
     def __init__(self, sv=None):
+        super().__init__(path=RADIOS)
         self._sv = sv
         self.radio_df = None
         self.__load_radios()
@@ -113,3 +130,20 @@ class Radios(object):
                 'ADS-B/WAM Usage'
             ]
         ]
+
+    def plot(self, plot_type='kml', color='Red', shape=None):
+        """Plot the radio locations"""
+        plot_obj = self.__get_plot(plot_type)
+
+    @staticmethod
+    def __get_plot(_type):
+        """Not yet implemented"""
+        # TODO: Implement the functionality below
+    #    opts = {'kml': plot_kml(), 'matplotlib': plot_matplot()}
+    #     return opts[_type]
+
+
+class Radios(object):
+    """Gather all pertinent information for radars"""
+    def __init__(self):
+        self._sv = None
