@@ -16,3 +16,7 @@ ERAM_SITES = [
     'ZID', 'ZJX', 'ZKC', 'ZLA', 'ZLC', 'ZMA', 'ZME', 'ZMP', 'ZNY',
     'ZOA', 'ZOB', 'ZSE', 'ZSU', 'ZTL', 'ZUA', 'ZHU, MEX, MID, MTY'
 ]
+
+SRR_TYPES = ['ASR-8', 'ASR-9', 'ASR-11']
+
+SV_LIST = ['ALL']

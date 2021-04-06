@@ -1,5 +1,6 @@
 from pykml import parser
 from shapely.geometry import Polygon
+from pygeodesy.ellipsoidalVincenty import LatLon
 import pandas as pd
 import matplotlib.pyplot as plt
 import warnings
@@ -177,7 +178,7 @@ class Geo(object):
         return [x_nmi, y_nmi]
 
     def lat_lon_from_reference_give_xy_nmi(self, ref_lat: float, ref_lon: float, x_nmi: float, y_nmi: float) -> list:
-        resolution = 0.0001
+        resolution = 0.01
         d_lat = self.distance_between_two_lat_lon(ref_lat, ref_lon, (ref_lat + resolution), ref_lon)
         d_lon = self.distance_between_two_lat_lon(ref_lat, ref_lon, ref_lat, (ref_lon + resolution))
         new_lat = ref_lat + ((y_nmi * resolution) / d_lat)
@@ -192,11 +193,12 @@ class Geo(object):
 
         return lat_lon_list
 
-    def lat_lon_from_reference_given_range_az_degrees(self, ref_lat, ref_lon, range_nmi, az_degrees) -> list:
-        self.__validate_as_degress(az_degrees)
-        x_nmi = range_nmi * np.sin(np.radians(az_degrees))
-        y_nmi = range_nmi * np.cos(np.radians(az_degrees))
-        return self.lat_lon_from_reference_give_xy_nmi(ref_lat, ref_lon, x_nmi, y_nmi)
+    @staticmethod
+    def lat_lon_from_reference_given_range_az_degrees(ref_lat, ref_lon, range_nmi, az_degrees) -> list:
+        p = LatLon(ref_lat, ref_lon)
+        range_meters = range_nmi * constants.NM_TO_METERS
+        d = p.destination(range_meters, az_degrees)
+        return (d.lat, d.lon)
 
     def lat_lon_from_reference_multiple_range_az_degrees(self, ref_lat, ref_lon, range_az_list) -> list:
         lat_lon_list = []
@@ -223,10 +225,11 @@ class Geo(object):
         az_degrees = 0.0
         delta_az_degree = 360.0/num_entries
         while az_degrees < 360.0:
-            lat_lon = self.lat_lon_from_reference_given_range_az_degrees(ref_lat, ref_lon, radius_nmi, az_degrees)
-            lat_lon_list.append((lat_lon[0], lat_lon[1]))
+            (lat_lon) = self.lat_lon_from_reference_given_range_az_degrees(ref_lat, ref_lon, radius_nmi, az_degrees)
+            lat_lon_list.append(lat_lon)
             az_degrees += delta_az_degree
-        if lat_lon_list:
+        num_items = len(lat_lon_list)
+        if num_items > 0 and (lat_lon_list[0] != lat_lon_list[num_items -1]):
             lat_lon_list.append(lat_lon_list[0])
 
         return lat_lon_list

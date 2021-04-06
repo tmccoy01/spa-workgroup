@@ -103,14 +103,14 @@ class KmlCreator(object):
         self.kml_filepath = kml_filepath
 
     @staticmethod
-    def __set_point_icon_href(self, point, shape, color=None):
+    def __set_point_icon_href(point, shape, color=None):
         if color is not None:
             if color.lower() == 'red':
                 color_prefix = 'red'
             elif color.lower() == 'blue':
-                color_prefix = 'blue'
+                color_prefix = 'blu'
             elif color.lower() == 'green':
-                color_prefix = 'green'
+                color_prefix = 'grn'
             else:
                 color_prefix = 'red'
 
@@ -119,7 +119,7 @@ class KmlCreator(object):
                 # No colors available
                 point.style.iconstyle.icon.href = base_url + 'placemark_circle.png'
             elif 'paddle' in shape.lower():
-                base_url = 'http://maps.google.com/mapfiles/kml/paddle'
+                base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
                 point.style.iconstyle.icon.href = base_url + color_prefix + '-square.png'
             elif 'square' in shape.lower():
                 base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
@@ -230,7 +230,7 @@ class KmlCreator(object):
         if description is not None:
             pnt.description = description
         if shape is not None:
-            self.__set_point_icon_href(pnt, shape, color)
+            self.__set_point_icon_href(point=pnt, shape=shape, color=color)
 
         return pnt
 
