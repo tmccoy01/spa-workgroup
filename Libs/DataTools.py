@@ -99,7 +99,9 @@ class Terminal(SurveillanceSystem):
                 'Latitude\n(Degrees)',
                 'Longitude\n(Degrees)',
                 'Enclosed By SV.1',
-                'ADS-B/WAM Usage'
+                'ADS-B/WAM Usage',
+                'Site Elevation (MSL)',
+                'Antenna Height (AGL)'
             ]
         ]
         self.radios = radio_df
@@ -157,7 +159,9 @@ class EnRoute(SurveillanceSystem):
                 'Latitude\n(Degrees)',
                 'Longitude\n(Degrees)',
                 'Enclosed By SV.1',
-                'ADS-B/WAM Usage'
+                'ADS-B/WAM Usage',
+                'Site Elevation (MSL)',
+                'Antenna Height (AGL)'
             ]
         ]
         self.radios = radio_df
@@ -221,7 +225,7 @@ class Radios(SurveillanceSource):
                 'Latitude\n(Degrees)',
                 'Longitude\n(Degrees)',
                 'Enclosed By SV.1',
-                'ADS-B/WAM Usage'
+                'ADS-B/WAM Usage',
             ]
         ]
 
