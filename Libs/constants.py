@@ -20,3 +20,30 @@ ERAM_SITES = [
 SRR_TYPES = ['ASR-8', 'ASR-9', 'ASR-11']
 
 SV_LIST = ['ALL']
+
+# PSR
+RADAR_SHAPES = {
+    "ASR-7": "7",
+    "ASR-8": "8",
+    "ASR-9": "9",
+    "ASR-11": "1",
+    "ARSR-4": "4",
+    "CARSR": "circle",
+    "DASR": "star",
+    "MPN-14K": "pause",
+    "FPS-117": "square",
+    "N/A": "blank"
+}
+
+# SSR
+RADAR_COLORS = {
+    "ATCBI-5": "#a6cee3",
+    "ATCBI-6": "#1f78b4",
+    "ATCBI-6M": "#b2df8a",
+    "BDAT": "#33a02c",
+    "Canadian SSR": "#fb9a99",
+    "MODES": "#e31a1c",
+    "MSSR": "#fdbf6f",
+    "MSSR-2000i": "#ff7f00",
+    "TPX-42": "#cab2d6"
+}

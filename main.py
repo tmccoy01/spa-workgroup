@@ -102,30 +102,6 @@ def plot_radios_terminal(kml, sensors, node):
 
 def plot_radars_terminal(kml, sensors, node):
     # TODO: Implement a '_get_sensor_plot_type' method for this.
-    shapes = {
-        'CARSR': 'circle',
-        'ARSR-4': 'diamond',
-        'ASR-11': 'star',
-        'ASR-9': 'star',
-        'ASR-8': 'star',
-        'ASR-7': 'star',
-        'DASR': 'pause',
-        'MPN-14K': 'play',
-        'FPS-117': 'square'
-    }
-
-    colors = {
-        'Canadian SSR': [0xa6, 0xce, 0xe3],
-        'MODES': [0x1f, 0x78, 0xb4],
-        'BDAT': [0xb2, 0xdf, 0x8a],
-        'TPX-42': [0x33, 0xa0, 0x2c],
-        'MSSR': [0xfb, 0x9a, 0x99],
-        'MSSR-2000i': [0xe3, 0x1a, 0x1c],
-        'ATCBI-6M': [0xfd, 0xbf, 0x6f],
-        'ATCBI-6': [0xff, 0x7f, 0x00],
-        'ATCBI-5': [0xca, 0xb2, 0xd6],
-        'nan': [0x6a, 0x3d, 0x9a]
-    }
 
     for ix, row in sensors.iterrows():
         if row['PSR Type'] in constants.SRR_TYPES:

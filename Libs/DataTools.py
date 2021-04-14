@@ -86,7 +86,9 @@ class Terminal(SurveillanceSystem):
                 'PSR Type'
             ]
         ]
-        self.radars = radar_df[:256]
+
+        radar_df = radar_df[:256].dropna(how='all', subset=['SSR Type', 'PSR Type'])
+        self.radars = radar_df[radar_df['SSR Type'] != 'WAM']
 
     def load_radios(self):
         radio_df = pd.read_excel(RADIOS, header=6)
@@ -146,7 +148,9 @@ class EnRoute(SurveillanceSystem):
                 'Airspace_ID'
             ]
         ]
-        self.radars = radar_df
+
+        radar_df = radar_df.dropna(how='all', subset=['SSR Type', 'PSR Type'])
+        self.radars = radar_df[radar_df['SSR Type'] != 'WAM']
 
     def load_radios(self):
         radio_df = pd.read_excel(RADIOS, header=6)
