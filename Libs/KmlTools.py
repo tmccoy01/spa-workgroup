@@ -104,7 +104,7 @@ class KmlCreator(object):
 
     @staticmethod
     def __set_point_icon_href(point, shape, color=None):
-        if color is not None:
+        if isinstance(color, str):
             if color.lower() == 'red':
                 color_prefix = 'red'
             elif color.lower() == 'blue':
@@ -137,9 +137,15 @@ class KmlCreator(object):
                     arrow_type = 0
                 base_url = 'http://earth.google.com/images/kml-icons/track-directional/'
                 point.style.iconstyle.icon.href = base_url + 'track-' + str(arrow_type) + '.png'
+            elif 'test' in shape.lower():
+                base_url = 'http://maps.google.com/mapfiles/kml/paddle/8.png'
+                point.style.iconstyle.icon.href = base_url
+                point.style.iconstyle.color = 'ff32ea1e'
             else:
                 # pushpin is default shape
                 do_nothing = True
+        elif isinstance(color, list):
+            base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
 
     def add_folder(self, parent_folder=None, name=None):
         if name is None:
@@ -318,6 +324,29 @@ class KmlCreator(object):
                 rgb_color = simplekml.Color.rgb(color[0], color[1], color[2])
                 alpha = int(255 * opacity/100)
                 pol.style.polystyle.color = simplekml.Color.changealphaint(alpha, rgb_color)
+
+    def add_3d_polygon(self, lla_list, filled=True, line_width=1,
+                       parent_node=None, color=None, opacity=50, name=None, description=None) -> None:
+        """
+        Create a 3 dimensional airspace plot
+        lla_list:
+        """
+        pass
+
+    def add_special(self, lat, lon, parent_node=None, altitude=None, name=None, description=None,
+                    shape=None, color=None):
+        """
+        Special function for SPA Workgroup kml creation
+        """
+        if parent_node is None:
+            parent_node = self.kml
+        if name is not None:
+            pnt = parent_node.newpoint(name=name)
+        else:
+            pnt = parent_node.newpoint()
+
+        if altitude is not None:
+            pnt.coords
 
     def add_tiles(self, tile_coordinates, line_width=1, parent_node=None,
                   color=None, opacity=50, name=None, description=None) -> None:

@@ -233,7 +233,7 @@ def main(file_name):
 if __name__ == '__main__':
     test_num = 1
     if test_num == 1:
-        main('test.kml')
+        main('../data/test.kml')
     elif test_num == 2:
         kml = KmlTools.KmlCreator()
 
