@@ -1,5 +1,7 @@
 import pandas as pd
 import collections
+
+from pandas.core.frame import DataFrame
 from Libs import (
     DataTools,
     KmlTools,
@@ -23,40 +25,42 @@ def plot_eram(data, kml, parent):
         # Plot the radars for the current ARTCC region
         radar_node = kml.add_folder(temp_node, name='Radars')
         for ix, row in curr_radars.iterrows():
-            if row['PSR Type'] in constants.SRR_TYPES:
-                curr_color = 'green'
+            if pd.isna(row['PSR Type']):
+                shape = 'blank'
             else:
-                curr_color = 'red'
+                shape = constants.RADAR_SHAPES[row['PSR Type']]
 
-            kml.add_point(
+            color = constants.RADAR_COLORS[row['SSR Type']]
+
+            kml.add_special(
                 row['Radar_Lat'],
                 row['Radar_Lon'],
+                base_shape='paddle',
                 parent_node=radar_node,
-                shape='paddle',
-                color=curr_color,
+                color=color,
+                shape=shape,
                 name=row['Radar_ID'],
                 description=str(row['SSR Type']) + "_" + str(row['PSR Type']) + "\n" + row['Radar_Name']
             )
+
         # Plot the radios for the current ARTCC region
         radio_node = kml.add_folder(temp_node, name='Radios')
         for ix, row in curr_radios.iterrows():
             if row['Operational Status'] == 'Operational' and row['ADS-B/WAM Usage'] == 'ADS-B':
-                kml.add_point(
+                if 'Thales' in row['Radio Variant']:
+                    shape = 'circle'
+                else:
+                    shape = constants.RADIO_SHAPES[row['Radio Variant']]
+
+                color = constants.RADIO_COLORS[row['1090ES Antenna']]
+
+                kml.add_special(
                     row['Latitude\n(Degrees)'],
                     row['Longitude\n(Degrees)'],
+                    base_shape='square',
                     parent_node=radio_node,
-                    shape='square',
-                    color='blue',
-                    name=row['RSID'],
-                    description=str(row['LID\n(GBT/[MRU])']) + " " + row['Facility Location']
-                )
-            elif row['Operational Status'] == 'Operational' and row['ADS-B/WAM Usage'] == 'WAM Only':
-                kml.add_point(
-                    row['Latitude\n(Degrees)'],
-                    row['Longitude\n(Degrees)'],
-                    parent_node=radio_node,
-                    shape='square',
-                    color='red',
+                    color=color,
+                    shape=shape,
                     name=row['RSID'],
                     description=str(row['LID\n(GBT/[MRU])']) + " " + row['Facility Location']
                 )
@@ -77,22 +81,20 @@ def plot_eram(data, kml, parent):
 def plot_radios_terminal(kml, sensors, node):
     for ix, row in sensors.iterrows():
         if row['Operational Status'] == 'Operational' and row['ADS-B/WAM Usage'] == 'ADS-B':
-            kml.add_point(
+            if 'Thales' in row['Radio Variant']:
+                shape = 'circle'
+            else:
+                shape = constants.RADIO_SHAPES[row['Radio Variant']]
+
+            color = constants.RADIO_COLORS[row['1090ES Antenna']]
+
+            kml.add_special(
                 row['Latitude\n(Degrees)'],
                 row['Longitude\n(Degrees)'],
+                base_shape='square',
                 parent_node=node,
-                color='blue',
-                shape='square',
-                name=row['RSID'],
-                description=str(row['LID\n(GBT/[MRU])']) + " " + row['Facility Location']
-            )
-        elif row['Operational Status'] == 'Operational' and row['ADS-B/WAM Usage'] == 'WAM Only':
-            kml.add_point(
-                row['Latitude\n(Degrees)'],
-                row['Longitude\n(Degrees)'],
-                parent_node=node,
-                color='red',
-                shape='square',
+                color=color,
+                shape=shape,
                 name=row['RSID'],
                 description=str(row['LID\n(GBT/[MRU])']) + " " + row['Facility Location']
             )
@@ -102,19 +104,21 @@ def plot_radios_terminal(kml, sensors, node):
 
 def plot_radars_terminal(kml, sensors, node):
     # TODO: Implement a '_get_sensor_plot_type' method for this.
-
     for ix, row in sensors.iterrows():
-        if row['PSR Type'] in constants.SRR_TYPES:
-            curr_color = 'green'
+        if pd.isna(row['PSR Type']):
+            shape = 'blank'
         else:
-            curr_color = 'red'
+            shape = constants.RADAR_SHAPES[row['PSR Type']]
 
-        kml.add_point(
+        color = constants.RADAR_COLORS[row['SSR Type']]
+
+        kml.add_special(
             row['Radar_Lat'],
             row['Radar_Lon'],
+            base_shape='paddle',
             parent_node=node,
-            color=curr_color,
-            shape='paddle',
+            color=color,
+            shape=shape,
             name=row['Radar_ID'],
             description=str(row['SSR Type']) + "_" + str(row['PSR Type']) + "\n" + row['Radar_Name']
         )
@@ -138,6 +142,24 @@ def _plot_single_bound(sensor_info, kml, parent, color):
     return kml
 
 
+def _filter_type(sensor_info: pd.DataFrame, sensor_type: str, filter: str = None):
+    """
+    return a dataframe filter by given 'sensor_type' and 'filter'
+    """
+    filtered_df = None
+    if filter is not None:
+        filtered_df = sensor_info[sensor_info[sensor_type] == filter]
+
+    return filtered_df
+
+
+def plot_all_types(kml, parent: str = None):
+    """
+    plot each sensor type so that it can be individually turned on and off
+    """
+    # TODO: grab all of the different sensor types
+
+
 def plot_sv_bounds(sv_regions, kml, parent):
     types = ['B', 'C', 'D']
     colors = [
@@ -150,48 +172,6 @@ def plot_sv_bounds(sv_regions, kml, parent):
         current_folder = kml.add_folder(parent, name=f'Class {_type}')
         for _, row in current_info.iterrows():
             kml = _plot_single_bound(row, kml, current_folder, colors[ix])
-
-    return kml
-
-
-def plot_cdot(kml):
-    cdot_folder = kml.add_folder(name='CDOT')
-    cdot_df = pd.read_excel(constants.RADARS, 'CDOT ADS-B&WAM')
-    cdot_df = cdot_df[
-        [
-            'SV ID',
-            'Airport Name',
-            'Arpt_ID',
-            'SV Polygon',
-            'Unnamed: 7',
-            'Services'
-        ]
-    ][1:]
-
-    valid_points = pd.notna(cdot_df['SV Polygon'])
-    cdot_df = cdot_df[valid_points]
-    lat_lon = collections.defaultdict(list)
-    for ix, row in cdot_df.iterrows():
-        if not pd.isna(row['SV ID']):
-            curr_sv = row['SV ID']
-
-        lat_lon[curr_sv].append(
-            (
-                row['SV Polygon'],
-                row['Unnamed: 7']
-            )
-        )
-
-    for site in lat_lon.keys():
-        kml.add_polygon(
-            lat_lon[site],
-            filled=False,
-            parent_node=cdot_folder,
-            name=site,
-            color=[0x00, 0xff, 0x00],
-            opacity=100,
-            line_width=3
-        )
 
     return kml
 
@@ -217,23 +197,18 @@ def create_terminal_data(kml_obj):
 
 def main(file_name):
     """Main function"""
-    kml = KmlTools.KmlCreator()
-    kml.create_kml(file_name)
+    kml_obj = KmlTools.KmlCreator()
+    kml_obj.create_kml(file_name)
     # Terminal
-    kml = create_terminal_data(kml)
+    kml_obj = create_terminal_data(kml_obj)
     # EnRoute
     en_route = DataTools.EnRoute()
-    en_route_folder = kml.add_folder(name='En Route')
-    kml = plot_eram(en_route, kml, en_route_folder)
-    # CDOT
-    kml = plot_cdot(kml)
-    kml.save()
+    en_route_folder = kml_obj.add_folder(name='En Route')
+    kml_obj = plot_eram(en_route, kml_obj, en_route_folder)
+    kml_obj.save()
 
 
 if __name__ == '__main__':
     test_num = 1
     if test_num == 1:
-        main('../data/test.kml')
-    elif test_num == 2:
-        kml = KmlTools.KmlCreator()
-
+        main('test.kml')

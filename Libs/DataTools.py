@@ -1,5 +1,6 @@
 # 3rd party imports
-import collections, os
+import os
+import collections
 import pandas as pd
 
 # Lib imports
@@ -15,11 +16,44 @@ class SurveillanceSystem(object):
         self.airspace_info = collections.defaultdict(list)
         self.radars = None
         self.radios = None
+        # Radars
+        self.psr_types = None
+        self.ssr_types = None
+        # Radios
+        self.radio_variants = None
+        self.radio_antennas = None
         # Private attributes
         self._sv_path = sv_path
         self._radio_path = radio_path
         self._radar_path = radar_path
         self._geo = GeoTools.Geo()
+
+    def load_radios(self):
+        radio_df = pd.read_excel(RADIOS, header=6)
+        radio_df = radio_df[
+            [
+                'Operational Status',
+                'LID\n(GBT/[MRU])',
+                'Facility Location',
+                'RSID',
+                'Latitude\n(Degrees)',
+                'Longitude\n(Degrees)',
+                'Enclosed By SV.1',
+                'ADS-B/WAM Usage',
+                'Site Elevation (MSL)',
+                'Antenna Height (AGL)',
+                '1090ES Antenna',
+                'Radio Variant'
+            ]
+        ]
+
+        radio_df = radio_df.dropna(subset=['Radio Variant'])
+        antennas = set(self.radios['1090ES Antenna'].to_list())
+        variants = set(self.radios['Radio Variant'].to_list())
+
+        self.radios = radio_df
+        self.radio_antennas = list(antennas)
+        self.radio_variants = list(variants)
 
     # TODO: Implement these two private methods below inside of the parent class
     @staticmethod
@@ -89,24 +123,35 @@ class Terminal(SurveillanceSystem):
 
         radar_df = radar_df[:256].dropna(how='all', subset=['SSR Type', 'PSR Type'])
         self.radars = radar_df[radar_df['SSR Type'] != 'WAM']
+        self.psr_types = set(self.radars['PSR Type'].to_list())
+        self.ssr_types = set(self.radars['SSR Type'].to_list())
 
-    def load_radios(self):
-        radio_df = pd.read_excel(RADIOS, header=6)
-        radio_df = radio_df[
-            [
-                'Operational Status',
-                'LID\n(GBT/[MRU])',
-                'Facility Location',
-                'RSID',
-                'Latitude\n(Degrees)',
-                'Longitude\n(Degrees)',
-                'Enclosed By SV.1',
-                'ADS-B/WAM Usage',
-                'Site Elevation (MSL)',
-                'Antenna Height (AGL)'
-            ]
-        ]
-        self.radios = radio_df
+    # def load_radios(self):
+    #     radio_df = pd.read_excel(RADIOS, header=6)
+    #     radio_df = radio_df[
+    #         [
+    #             'Operational Status',
+    #             'LID\n(GBT/[MRU])',
+    #             'Facility Location',
+    #             'RSID',
+    #             'Latitude\n(Degrees)',
+    #             'Longitude\n(Degrees)',
+    #             'Enclosed By SV.1',
+    #             'ADS-B/WAM Usage',
+    #             'Site Elevation (MSL)',
+    #             'Antenna Height (AGL)',
+    #             '1090ES Antenna',
+    #             'Radio Variant'
+    #         ]
+    #     ]
+    #
+    #     radio_df = radio_df.dropna(subset=['Radio Variant'])
+    #     antennas = set(self.radios['1090ES Antenna'].to_list())
+    #     variants = set(self.radios['Radio Variant'].to_list())
+    #
+    #     self.radios = radio_df
+    #     self.radio_antennas = list(antennas)
+    #     self.radio_variants = list(variants)
 
 
 class EnRoute(SurveillanceSystem):
@@ -152,28 +197,37 @@ class EnRoute(SurveillanceSystem):
         radar_df = radar_df.dropna(how='all', subset=['SSR Type', 'PSR Type'])
         self.radars = radar_df[radar_df['SSR Type'] != 'WAM']
 
-    def load_radios(self):
-        radio_df = pd.read_excel(RADIOS, header=6)
-        radio_df = radio_df[
-            [
-                'Operational Status',
-                'LID\n(GBT/[MRU])',
-                'Facility Location',
-                'RSID',
-                'Latitude\n(Degrees)',
-                'Longitude\n(Degrees)',
-                'Enclosed By SV.1',
-                'ADS-B/WAM Usage',
-                'Site Elevation (MSL)',
-                'Antenna Height (AGL)'
-            ]
-        ]
-        self.radios = radio_df
+    # def load_radios(self):
+    #     radio_df = pd.read_excel(RADIOS, header=6)
+    #     radio_df = radio_df[
+    #         [
+    #             'Operational Status',
+    #             'LID\n(GBT/[MRU])',
+    #             'Facility Location',
+    #             'RSID',
+    #             'Latitude\n(Degrees)',
+    #             'Longitude\n(Degrees)',
+    #             'Enclosed By SV.1',
+    #             'ADS-B/WAM Usage',
+    #             'Site Elevation (MSL)',
+    #             'Antenna Height (AGL)',
+    #             '1090ES Antenna',
+    #             'Radio Variant'
+    #         ]
+    #     ]
+    #
+    #     radio_df = radio_df.dropna(subset=['Radio Variant'])
+    #     antennas = set(self.radios['1090ES Antenna'].to_list())
+    #     variants = set(self.radios['Radio Variant'].to_list())
+    #
+    #     self.radios = radio_df
+    #     self.radio_antennas = list(antennas)
+    #     self.radio_variants = list(variants)
 
 
 class SurveillanceSource(object):
     """Gather all information for a given surveillance source"""
-    def __init__(self, path: str, sv: str, sheet_name: str = 0, header: int = 0):
+    def __init__(self, path: str, sv: str, sheet_name: int = 0, header: int = 0):
         self._sv = sv
         self.sensor_df = None
         self._path = path
@@ -233,22 +287,21 @@ class Radios(SurveillanceSource):
             ]
         ]
 
-    def plot(self, plot_type='kml', color='Red', shape=None):
-        """Plot the radio locations"""
-        plot_obj = self.__get_plot(plot_type)
-
-    @staticmethod
-    def __get_plot(_type):
-        """Not yet implemented"""
-        # TODO: Implement the functionality below
-    #    opts = {'kml': plot_kml(), 'matplotlib': plot_matplot()}
+    # def plot(self, plot_type='kml', color='Red', shape=None):
+    #     """Plot the radio locations"""
+    #     plot_obj = self.__get_plot(plot_type)
+    #
+    # @staticmethod
+    # def __get_plot(_type):
+    #     """Get the correct plotting type"""
+    #     opts = {'kml': plot_kml(), 'matplotlib': plot_matplot()}
     #     return opts[_type]
 
 
 class Radars(SurveillanceSource):
     """Gather all pertinent information for radars"""
     def __init__(self, sv: str = "ALL"):
-        super().__init__(path=RADARS, sv=sv, sheet_name=None)
+        super().__init__(path=RADARS, sv=sv, sheet_name=0)
 
 
 if __name__ == '__main__':

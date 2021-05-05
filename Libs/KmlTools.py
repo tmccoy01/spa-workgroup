@@ -103,8 +103,8 @@ class KmlCreator(object):
         self.kml_filepath = kml_filepath
 
     @staticmethod
-    def __set_point_icon_href(point, shape, color=None):
-        if isinstance(color, str):
+    def __set_point_icon_href(point, shape, color=None, base_shape='paddle'):
+        if len(color) < 6:
             if color.lower() == 'red':
                 color_prefix = 'red'
             elif color.lower() == 'blue':
@@ -144,8 +144,18 @@ class KmlCreator(object):
             else:
                 # pushpin is default shape
                 do_nothing = True
-        elif isinstance(color, list):
-            base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
+        else:
+            if base_shape == 'paddle':
+                base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
+                if len(shape) > 1:
+                    point.style.iconstyle.icon.href = base_url + 'wht-' + shape + '.png'
+                else:
+                    point.style.iconstyle.icon.href = base_url + shape + '.png'
+            else:
+                base_url = f'http://maps.google.com/mapfiles/kml/paddle/wht-{shape}-lv'
+                point.style.iconstyle.icon.href = base_url + '.png'
+
+            point.style.iconstyle.color = 'ff' + color
 
     def add_folder(self, parent_folder=None, name=None):
         if name is None:
@@ -333,11 +343,13 @@ class KmlCreator(object):
         """
         pass
 
-    def add_special(self, lat, lon, parent_node=None, altitude=None, name=None, description=None,
+    def add_special(self, lat, lon, base_shape, parent_node=None, name=None, description=None,
                     shape=None, color=None):
         """
         Special function for SPA Workgroup kml creation
         """
+        # TODO: Make a private method so this isn't repeated in other functions
+        # self._valdiate_poitn(lat, lon, shape, color)
         if parent_node is None:
             parent_node = self.kml
         if name is not None:
@@ -345,8 +357,15 @@ class KmlCreator(object):
         else:
             pnt = parent_node.newpoint()
 
-        if altitude is not None:
-            pnt.coords
+        pnt.coords = [(lon, lat)]
+
+        if description is not None:
+            pnt.description = description
+
+        if shape is not None:
+            self.__set_point_icon_href(point=pnt, shape=shape, color=color, base_shape=base_shape)
+
+        return pnt
 
     def add_tiles(self, tile_coordinates, line_width=1, parent_node=None,
                   color=None, opacity=50, name=None, description=None) -> None:

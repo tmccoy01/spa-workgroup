@@ -29,21 +29,34 @@ RADAR_SHAPES = {
     "ASR-11": "1",
     "ARSR-4": "4",
     "CARSR": "circle",
-    "DASR": "star",
-    "MPN-14K": "pause",
+    "DASR": "stars",
+    "MPN-14K": "diamond",
     "FPS-117": "square",
     "N/A": "blank"
 }
 
 # SSR
 RADAR_COLORS = {
-    "ATCBI-5": "#a6cee3",
-    "ATCBI-6": "#1f78b4",
-    "ATCBI-6M": "#b2df8a",
-    "BDAT": "#33a02c",
-    "Canadian SSR": "#fb9a99",
-    "MODES": "#e31a1c",
-    "MSSR": "#fdbf6f",
-    "MSSR-2000i": "#ff7f00",
-    "TPX-42": "#cab2d6"
+    "ATCBI-5": "a6cee3",
+    "ATCBI-6": "1f78b4",
+    "ATCBI-6M": "b2df8a",
+    "BDAT": "33a02c",
+    "Canadian SSR": "fb9a99",
+    "MODES": "78c679",
+    "MSSR": "fdbf6f",
+    "MSSR-2000i": "ff7f00",
+    "TPX-42": "cab2d6"
+}
+
+RADIO_COLORS = {
+    "omni": "8dd3c7",
+    "2-sector": "ffffb3",
+    "4-sector": "b2df8a",
+    "virtual": "fb8072"
+}
+
+RADIO_SHAPES = {
+    "Thales": "circle",
+    "Selex": "diamond",
+    "Aireon": 'stars'
 }
