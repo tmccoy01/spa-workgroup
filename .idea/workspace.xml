@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e41a2310-5919-4bbc-8396-516c6f268e00" name="Default Changelist" comment="add new kml logic">
-      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/1/4/14df7060c23f09f913f0e066487f8b032f2e1fb2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/4/9/496a238a6afa168dbaf6efd37bb459331589579c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/MCC Travis RAPCON Airspace.kmz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/SECTORS.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/3d_plot_example.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="e41a2310-5919-4bbc-8396-516c6f268e00" name="Default Changelist" comment="add sensor filtering logic">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/spa-workgroup.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/spa-workgroup.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libs/DataTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/DataTools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KmlTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KmlTools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/3d_plot_example.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -69,7 +62,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -202,7 +195,8 @@
       <workItem from="1619446085260" duration="375000" />
       <workItem from="1619446532098" duration="2369000" />
       <workItem from="1620231985470" duration="383000" />
-      <workItem from="1620233248034" duration="3427000" />
+      <workItem from="1620233248034" duration="4159000" />
+      <workItem from="1620248517173" duration="14555000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <created>1616103362447</created>
@@ -316,7 +310,14 @@
       <option name="project" value="LOCAL" />
       <updated>1618460366198</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="add sensor filtering logic">
+      <created>1620247827829</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1620247827829</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -368,11 +369,23 @@
     <MESSAGE value="start adding radar/radio specific colors and shapes" />
     <MESSAGE value="add radar shape and color logic" />
     <MESSAGE value="add new kml logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="add new kml logic" />
+    <MESSAGE value="add sensor filtering logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="add sensor filtering logic" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scripts/main.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/spa_workgroup$DataTools.coverage" NAME="DataTools Coverage Results" MODIFIED="1617291444967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Libs" />
     <SUITE FILE_PATH="coverage/spa_workgroup$create_radio_spreadsheet.coverage" NAME="create_radio_spreadsheet Coverage Results" MODIFIED="1617984612525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/spa_workgroup$main.coverage" NAME="main Coverage Results" MODIFIED="1618850694215" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/spa_workgroup$main.coverage" NAME="main Coverage Results" MODIFIED="1620315653855" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

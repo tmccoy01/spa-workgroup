@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Libs" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/data" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/.vscode" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.6 (Work)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
