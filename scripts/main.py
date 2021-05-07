@@ -4,29 +4,56 @@ from Libs import DataTools, KmlTools, GeoTools, constants
 _geo = GeoTools.Geo()
 
 
-def _filter_sensor_data(sensor_data: pd.DataFrame, all_types: pd.DataFrame, sensor_type: str):
-    """return a dict of indexes for each sensor variation for the given 'sensor_type'"""
+def get_indexes(sensor_data: pd.DataFrame, sensor_type: str) -> dict:
+    """return the indexes for the given sensor type"""
     filter_idx = {}
-    all_types = set()
+    all_types = set(sensor_data[sensor_type].to_list())
+    for _type in all_types:
+        if pd.isna(_type):
+            filter_idx["N/A"] = pd.isna(sensor_data[sensor_type])
+        else:
+            # idx = sensor_data.index
+            # tf = sensor_data[sensor_type] == _type
+            # filter_idx[_type] = idx[tf]
+            filter_idx[_type] = sensor_data[sensor_type] == _type
+
+    return filter_idx
 
 
-def _plot_sensor_types(kml, data: pd.DataFrame, parent: str, sensor_type: str = 'radar'):
+def filter_sensor_data(sensor_data: pd.DataFrame, sensor_type: str):
+    """return a dict of dataframes for the given sensor_type"""
+    filtered_idx = get_indexes(sensor_data, sensor_type)
+    filtered_dict = {}
+    for _type, idx in filtered_idx.items():
+        filtered_dict[_type] = sensor_data[idx]
+
+    return filtered_dict
+
+
+def plot_single_sensor_type(kml, sensor_data: pd.DataFrame, parent: str):
+    """not yet implemented"""
+    pass
+
+
+def plot_sensor_types(kml, data: pd.DataFrame, parent: str, sensor_type: str = "radar"):
     """plot each sensor type so that it can be individually turned on and off"""
-
-    sensor_type_folder = kml.add_folder(parent, name='Sensor Types')
+    sensor_type_folder = kml.add_folder(parent, name="Sensor Types")
     sensor_types = {
-        'radar': ['PSR Type', 'SSR Type'],
-        'radio': ['Antenna Types', '1090ES Variant']
+        "radar": ["PSR Type", "SSR Type"],
+        "radio": ["Antenna Types", "1090ES Variant"],
     }
 
-    if 'radar' in sensor_type.lower():
+    if "radar" in sensor_type.lower():
         sensor_data = data.radars
     else:
         sensor_data = data.radios
 
     for _type in sensor_types[sensor_type.lower()]:
         curr_folder = kml.add_folder(parent_folder=sensor_type_folder, name=_type)
-        curr_indexes = _filter_sensor_data(sensor_data, all_types=data, sensor_type=_type)
+        curr_sensor_types = filter_sensor_data(sensor_data, sensor_type=_type)
+        kml = plot_single_sensor_type(
+            kml, sensor_data=curr_sensor_types, parent=curr_folder
+        )
 
     return kml
 
@@ -49,7 +76,7 @@ def plot_eram(data, kml, parent):
         kml = _plot_radios(kml, sensors=curr_radios, node=radio_node)
 
     # Plots for individual sensor types
-    kml = _plot_sensor_types(kml, data, parent=eram_folder)
+    kml = plot_sensor_types(kml, data, parent=eram_folder)
 
     return kml
 
@@ -91,7 +118,7 @@ def _plot_radios(kml, sensors, node):
 def _plot_radars(kml, all_data, node):
     """plot radar locations and types"""
 
-    all_radar_folder = kml.add_folder(parent_folder=node, name='All')
+    all_radar_folder = kml.add_folder(parent_folder=node, name="All")
     sensors = all_data.radars
     for ix, row in sensors.iterrows():
         if pd.isna(row["PSR Type"]):
@@ -116,7 +143,7 @@ def _plot_radars(kml, all_data, node):
             + row["Radar_Name"],
         )
 
-    kml = _plot_sensor_types(kml, all_data, parent=node, sensor_type='radar')
+    kml = plot_sensor_types(kml, all_data, parent=node, sensor_type="radar")
 
     return kml
 
