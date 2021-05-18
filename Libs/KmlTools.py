@@ -155,7 +155,8 @@ class KmlCreator(object):
                 base_url = f'http://maps.google.com/mapfiles/kml/paddle/wht-{shape}-lv'
                 point.style.iconstyle.icon.href = base_url + '.png'
 
-            point.style.iconstyle.color = 'ff' + color
+            # point.style.iconstyle.color = 'ff' + color
+            point.style.iconstyle.color = color
 
     def add_folder(self, parent_folder=None, name=None):
         if name is None:

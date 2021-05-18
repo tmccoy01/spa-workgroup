@@ -79,6 +79,7 @@ class Terminal(SurveillanceSystem):
     def __init__(self, airspace_class="all"):
         # Initialize the SurveillanceSystem super class
         super().__init__()
+        self.site_list = []
         self.__load_airspace_info(airspace_class.upper())
 
     def __load_airspace_info(self, airspace_class):
@@ -119,13 +120,22 @@ class Terminal(SurveillanceSystem):
     def load_radars(self):
         radar_df = pd.read_excel(self._radar_path, sheet_name="Terminal Radars")
         radar_df = radar_df[
-            ["Radar_Name", "Radar_ID", "Radar_Lat", "Radar_Lon", "SSR Type", "PSR Type"]
+            [
+                "Radar_Name",
+                "Radar_ID",
+                "SDP1",
+                "Radar_Lat",
+                "Radar_Lon",
+                "SSR Type",
+                "PSR Type",
+            ]
         ]
 
         radar_df = radar_df[:256].dropna(how="all", subset=["SSR Type", "PSR Type"])
         self.radars = radar_df[radar_df["SSR Type"] != "WAM"]
         self.psr_type = list(set(self.radars["PSR Type"].to_list()))
         self.ssr_type = list(set(self.radars["SSR Type"].to_list()))
+        self.site_list = set(self.radars['SDP1'].to_list())
 
 
 class EnRoute(SurveillanceSystem):

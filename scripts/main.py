@@ -4,6 +4,33 @@ from Libs import DataTools, KmlTools, GeoTools, constants
 _geo = GeoTools.Geo()
 
 
+def _get_radar_shape_color(row: pd.Series):
+    """return the color and shape for given radar"""
+    if pd.isna(row["PSR Type"]):
+        shape = "blank"
+    else:
+        shape = constants.RADAR_SHAPES[row["PSR Type"]]
+
+    color = constants.RADAR_COLORS[row["SSR Type"]]
+
+    return shape, color
+
+
+def _get_radio_shape_color(row: pd.Series):
+    """return the color and shape for the given radio"""
+    shape = None
+    color = None
+    if row["Operational Status"] == "Operational" and row["ADS-B/WAM Usage"] == "ADS-B":
+        if "Thales" in row["Radio Variant"]:
+            shape = "circle"
+        else:
+            shape = constants.RADIO_SHAPES[row["Radio Variant"]]
+
+        color = constants.RADIO_COLORS[row["1090ES Antenna"]]
+
+    return shape, color
+
+
 def get_indexes(sensor_data: pd.DataFrame, sensor_type: str) -> dict:
     """return the indexes for the given sensor type"""
     filter_idx = {}
@@ -30,17 +57,63 @@ def filter_sensor_data(sensor_data: pd.DataFrame, sensor_type: str):
     return filtered_dict
 
 
-def plot_single_sensor_type(kml, sensor_data: pd.DataFrame, parent: str):
-    """not yet implemented"""
-    pass
+def _plot_radar(kml, row, parent_folder: str):
+    """plot radar variant"""
+    shape, color = _get_radar_shape_color(row)
+    kml.add_special(
+        row["Radar_Lat"],
+        row["Radar_Lon"],
+        base_shape="paddle",
+        parent_node=parent_folder,
+        color=color,
+        shape=shape,
+        name=row["Radar_ID"],
+        description=str(row["SSR Type"])
+        + "_"
+        + str(row["PSR Type"])
+        + "\n"
+        + row["Radar_Name"].strip(),
+    )
+    return kml
 
 
-def plot_sensor_types(kml, data: pd.DataFrame, parent: str, sensor_type: str = "radar"):
+def _plot_radio(kml, row, parent_folder: str):
+    """plot radio variants"""
+    shape, color = _get_radio_shape_color(row)
+    if shape is not None:
+        kml.add_special(
+            row["Latitude\n(Degrees)"],
+            row["Longitude\n(Degrees)"],
+            base_shape="square",
+            parent_node=parent_folder,
+            color=color,
+            shape=shape,
+            name=row["RSID"],
+            description=str(row["LID\n(GBT/[MRU])"]) + " " + row["Facility Location"],
+        )
+
+    return kml
+
+
+def plot_single_sensor_type(kml, sensor_data: dict, parent: str, sensor_type: str):
+    """plot all radar sensor variations"""
+    for variation in sensor_data.keys():
+        curr_folder = kml.add_folder(parent_folder=parent, name=variation)
+        for ix, row in sensor_data[variation].iterrows():
+            if sensor_type.lower() == "radar":
+                kml = _plot_radar(kml, row, curr_folder)
+            else:
+                kml = _plot_radio(kml, row, curr_folder)
+
+    return kml
+
+
+def get_sensor_types(kml, data, parent: str, sensor_type: str = "radar"):
     """plot each sensor type so that it can be individually turned on and off"""
-    sensor_type_folder = kml.add_folder(parent, name="Sensor Types")
+    # sensor_type_folder = kml.add_folder(parent, name="Sensor Types")
     sensor_types = {
         "radar": ["PSR Type", "SSR Type"],
-        "radio": ["Antenna Types", "1090ES Variant"],
+        "radio": ["1090ES Antenna", "Radio Variant"],
     }
 
     if "radar" in sensor_type.lower():
@@ -49,10 +122,13 @@ def plot_sensor_types(kml, data: pd.DataFrame, parent: str, sensor_type: str = "
         sensor_data = data.radios
 
     for _type in sensor_types[sensor_type.lower()]:
-        curr_folder = kml.add_folder(parent_folder=sensor_type_folder, name=_type)
+        curr_folder = kml.add_folder(parent_folder=parent, name=_type)
         curr_sensor_types = filter_sensor_data(sensor_data, sensor_type=_type)
         kml = plot_single_sensor_type(
-            kml, sensor_data=curr_sensor_types, parent=curr_folder
+            kml,
+            sensor_data=curr_sensor_types,
+            parent=curr_folder,
+            sensor_type=sensor_type,
         )
 
     return kml
@@ -60,7 +136,7 @@ def plot_sensor_types(kml, data: pd.DataFrame, parent: str, sensor_type: str = "
 
 def plot_eram(data, kml, parent):
     """Test to load and plot the ERAM areas"""
-    eram_folder = kml.add_folder(parent, name="ERAM Boundaries")
+    eram_folder = kml.add_folder(parent, name="ERAM Sites")
     data.load_radars()
     data.load_radios()
     for site in constants.ERAM_SITES:
@@ -76,14 +152,12 @@ def plot_eram(data, kml, parent):
         kml = _plot_radios(kml, sensors=curr_radios, node=radio_node)
 
     # Plots for individual sensor types
-    kml = plot_sensor_types(kml, data, parent=eram_folder)
+    radar_folder = kml.add_folder(parent, name="Radar Types")
+    kml = get_sensor_types(kml, data, parent=radar_folder)
+    radio_folder = kml.add_folder(parent, name="Radio Types")
+    kml = get_sensor_types(kml, data, parent=radio_folder, sensor_type="Radio")
 
     return kml
-
-
-def plot_stars(data, kml, parent):
-    """placeholder for later implementation"""
-    pass
 
 
 def _plot_radios(kml, sensors, node):
@@ -115,11 +189,9 @@ def _plot_radios(kml, sensors, node):
     return kml
 
 
-def _plot_radars(kml, all_data, node):
+def _plot_radars(kml, sensors, node):
     """plot radar locations and types"""
 
-    all_radar_folder = kml.add_folder(parent_folder=node, name="All")
-    sensors = all_data.radars
     for ix, row in sensors.iterrows():
         if pd.isna(row["PSR Type"]):
             shape = "blank"
@@ -142,8 +214,6 @@ def _plot_radars(kml, all_data, node):
             + "\n"
             + row["Radar_Name"],
         )
-
-    kml = plot_sensor_types(kml, all_data, parent=node, sensor_type="radar")
 
     return kml
 
@@ -186,10 +256,14 @@ def create_terminal_data(kml_obj):
     terminal.load_radios()
 
     radar_folder = kml_obj.add_folder(terminal_folder, name="Radars")
-    kml_obj = _plot_radars(kml_obj, all_data=terminal, node=radar_folder)
+    all_folder = kml_obj.add_folder(radar_folder, "All")
+    kml_obj = _plot_radars(kml_obj, sensors=terminal.radars, node=all_folder)
+    kml = get_sensor_types(kml_obj, terminal, parent=radar_folder)
 
     radio_folder = kml_obj.add_folder(terminal_folder, name="Radios")
-    kml_obj = _plot_radios(kml_obj, sensors=terminal, node=radio_folder)
+    all_folder = kml_obj.add_folder(radio_folder, "All")
+    kml_obj = _plot_radios(kml_obj, sensors=terminal.radios, node=all_folder)
+    kml = get_sensor_types(kml_obj, terminal, parent=radio_folder, sensor_type="Radio")
 
     sv_folder = kml_obj.add_folder(terminal_folder, name="SV Bounds")
     kml_obj = plot_sv_bounds(terminal.airspace_info, kml_obj, sv_folder)
@@ -214,3 +288,13 @@ if __name__ == "__main__":
     test_num = 1
     if test_num == 1:
         main("test.kml")
+    elif test_num == 2:
+        data = DataTools.Terminal()
+        data.load_radars()
+        data.load_radios()
+
+        kml_obj = KmlTools.KmlCreator()
+        kml_obj.create_kml("test.kml")
+        test_folder = kml_obj.add_folder(name="test")
+
+        kml = get_sensor_types(kml_obj, data, parent=test_folder)

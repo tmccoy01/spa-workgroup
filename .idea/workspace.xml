@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e41a2310-5919-4bbc-8396-516c6f268e00" name="Default Changelist" comment="added more filtering logic and changed some DataTools logic">
+    <list default="true" id="e41a2310-5919-4bbc-8396-516c6f268e00" name="Default Changelist" comment="add filter logic">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/DataTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/DataTools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KmlTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KmlTools.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,6 +53,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SONARLINT_PRECOMMIT_ANALYSIS" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -193,7 +196,9 @@
       <workItem from="1620233248034" duration="4159000" />
       <workItem from="1620248517173" duration="14555000" />
       <workItem from="1620318055695" duration="1036000" />
-      <workItem from="1620358555317" duration="5342000" />
+      <workItem from="1620358555317" duration="5961000" />
+      <workItem from="1620668150597" duration="7186000" />
+      <workItem from="1621255652180" duration="10889000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <created>1616103362447</created>
@@ -321,7 +326,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620318278000</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="add filter logic">
+      <created>1620364366159</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1620364366159</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -375,11 +387,12 @@
     <MESSAGE value="add new kml logic" />
     <MESSAGE value="add sensor filtering logic" />
     <MESSAGE value="added more filtering logic and changed some DataTools logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="added more filtering logic and changed some DataTools logic" />
+    <MESSAGE value="add filter logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="add filter logic" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/spa_workgroup$DataTools.coverage" NAME="DataTools Coverage Results" MODIFIED="1617291444967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Libs" />
     <SUITE FILE_PATH="coverage/spa_workgroup$create_radio_spreadsheet.coverage" NAME="create_radio_spreadsheet Coverage Results" MODIFIED="1617984612525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/spa_workgroup$main.coverage" NAME="main Coverage Results" MODIFIED="1620364351460" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/spa_workgroup$main.coverage" NAME="main Coverage Results" MODIFIED="1621261719601" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
