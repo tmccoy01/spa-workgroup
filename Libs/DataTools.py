@@ -29,24 +29,31 @@ class SurveillanceSystem(object):
         self._radar_path = radar_path
         self._geo = GeoTools.Geo()
 
-    def load_radios(self):
+    def load_radios(self, _filter: str = None):
         radio_df = pd.read_excel(RADIOS, header=6)
-        radio_df = radio_df[
-            [
-                "Operational Status",
-                "LID\n(GBT/[MRU])",
-                "Facility Location",
-                "RSID",
-                "Latitude\n(Degrees)",
-                "Longitude\n(Degrees)",
-                "Enclosed By SV.1",
-                "ADS-B/WAM Usage",
-                "Site Elevation (MSL)",
-                "Antenna Height (AGL)",
-                "1090ES Antenna",
-                "Radio Variant",
+        if _filter is None:
+            radio_df = radio_df[
+                [
+                    "Operational Status",
+                    "LID\n(GBT/[MRU])",
+                    "Facility Location",
+                    "RSID",
+                    "Latitude\n(Degrees)",
+                    "Longitude\n(Degrees)",
+                    "Enclosed By SV.1",
+                    "ADS-B/WAM Usage",
+                    "Site Elevation (MSL)",
+                    "Antenna Height (AGL)",
+                    "1090ES Antenna",
+                    "Radio Variant",
+                ]
             ]
-        ]
+        else:
+            try:
+                filter_idx = radio_df.get(f"{_filter} eCTV", default="N/A")
+                radio_df = radio_df[filter_idx == "O"]
+            except KeyError as err:
+                print(f"{_filter} not found as a valid ERAM site")
 
         radio_df = radio_df.dropna(subset=["Radio Variant"])
         antennas = list(set(radio_df["1090ES Antenna"].to_list()))
@@ -128,6 +135,7 @@ class Terminal(SurveillanceSystem):
                 "Radar_Lon",
                 "SSR Type",
                 "PSR Type",
+                "Airspace_ID",
             ]
         ]
 
@@ -135,7 +143,7 @@ class Terminal(SurveillanceSystem):
         self.radars = radar_df[radar_df["SSR Type"] != "WAM"]
         self.psr_type = list(set(self.radars["PSR Type"].to_list()))
         self.ssr_type = list(set(self.radars["SSR Type"].to_list()))
-        self.site_list = set(self.radars['SDP1'].to_list())
+        self.site_list = set(self.radars["SDP1"].to_list())
 
 
 class EnRoute(SurveillanceSystem):

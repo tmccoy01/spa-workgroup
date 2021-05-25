@@ -31,7 +31,7 @@ class Parser(object):
             _line = []
             alt = None
             for points in pm.LineString.coordinates.text.split():
-                lon, lat, alt = points.split(',')
+                lon, lat, alt = points.split(",")
                 _line.append((float(lon), float(lat)))
             _lines.append(_line)
             alts.append(float(alt))
@@ -51,18 +51,19 @@ class Parser(object):
             alts.extend([0.0] * (len(diff_regions) - len(alts)))
         i = 0
         regions = []
-        region_data = pd.DataFrame(columns=['lat', 'lon', 'alt', 'region_num'])
+        region_data = pd.DataFrame(columns=["lat", "lon", "alt", "region_num"])
         for num, geom in enumerate(diff_regions):
-            if any(x in lon_bounds for x in geom.exterior.xy[0]) and \
-                    any(y in lat_bounds for y in geom.exterior.xy[1]):
+            if any(x in lon_bounds for x in geom.exterior.xy[0]) and any(
+                y in lat_bounds for y in geom.exterior.xy[1]
+            ):
                 continue
             else:
                 for lon, lat in zip(geom.exterior.xy[0], geom.exterior.xy[1]):
                     regions.append(geom)
-                    region_data.loc[i, 'lat'] = lat
-                    region_data.loc[i, 'lon'] = lon
-                    region_data.loc[i, 'alt'] = alts[num]
-                    region_data.loc[i, 'region_num'] = num
+                    region_data.loc[i, "lat"] = lat
+                    region_data.loc[i, "lon"] = lon
+                    region_data.loc[i, "alt"] = alts[num]
+                    region_data.loc[i, "region_num"] = num
                     i += 1
 
         return region_data, regions
@@ -103,64 +104,70 @@ class KmlCreator(object):
         self.kml_filepath = kml_filepath
 
     @staticmethod
-    def __set_point_icon_href(point, shape, color=None, base_shape='paddle'):
+    def __set_point_icon_href(point, shape, color=None, base_shape="paddle"):
         if len(color) < 6:
-            if color.lower() == 'red':
-                color_prefix = 'red'
-            elif color.lower() == 'blue':
-                color_prefix = 'blu'
-            elif color.lower() == 'green':
-                color_prefix = 'grn'
+            if color.lower() == "red":
+                color_prefix = "red"
+            elif color.lower() == "blue":
+                color_prefix = "blu"
+            elif color.lower() == "green":
+                color_prefix = "grn"
             else:
-                color_prefix = 'red'
+                color_prefix = "red"
 
-            if 'circle' in shape.lower():
-                base_url = 'http://maps.google.com/mapfiles/kml/shapes/'
+            if "circle" in shape.lower():
+                base_url = "http://maps.google.com/mapfiles/kml/shapes/"
                 # No colors available
-                point.style.iconstyle.icon.href = base_url + 'placemark_circle.png'
-            elif 'paddle' in shape.lower():
-                base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
-                point.style.iconstyle.icon.href = base_url + color_prefix + '-square.png'
-            elif 'square' in shape.lower():
-                base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
-                point.style.iconstyle.icon.href = base_url + color_prefix + '-square-lv.png'
-            elif 'arrow' in shape.lower():
+                point.style.iconstyle.icon.href = base_url + "placemark_circle.png"
+            elif "paddle" in shape.lower():
+                base_url = "http://maps.google.com/mapfiles/kml/paddle/"
+                point.style.iconstyle.icon.href = (
+                    base_url + color_prefix + "-square.png"
+                )
+            elif "square" in shape.lower():
+                base_url = "http://maps.google.com/mapfiles/kml/paddle/"
+                point.style.iconstyle.icon.href = (
+                    base_url + color_prefix + "-square-lv.png"
+                )
+            elif "arrow" in shape.lower():
                 # arrow or arrow:<num>
-                if ':' in shape:
+                if ":" in shape:
                     # arrow:<num>
-                    t_list = shape.split(':')
+                    t_list = shape.split(":")
                     arrow_type = int(t_list[1])
                     if (arrow_type < 0) or (arrow_type >= 16):
                         arrow_type = 0
                 else:
                     # arrow
                     arrow_type = 0
-                base_url = 'http://earth.google.com/images/kml-icons/track-directional/'
-                point.style.iconstyle.icon.href = base_url + 'track-' + str(arrow_type) + '.png'
-            elif 'test' in shape.lower():
-                base_url = 'http://maps.google.com/mapfiles/kml/paddle/8.png'
+                base_url = "http://earth.google.com/images/kml-icons/track-directional/"
+                point.style.iconstyle.icon.href = (
+                    base_url + "track-" + str(arrow_type) + ".png"
+                )
+            elif "test" in shape.lower():
+                base_url = "http://maps.google.com/mapfiles/kml/paddle/8.png"
                 point.style.iconstyle.icon.href = base_url
-                point.style.iconstyle.color = 'ff32ea1e'
+                point.style.iconstyle.color = "ff32ea1e"
             else:
                 # pushpin is default shape
                 do_nothing = True
         else:
-            if base_shape == 'paddle':
-                base_url = 'http://maps.google.com/mapfiles/kml/paddle/'
+            if base_shape == "paddle":
+                base_url = "http://maps.google.com/mapfiles/kml/paddle/"
                 if len(shape) > 1:
-                    point.style.iconstyle.icon.href = base_url + 'wht-' + shape + '.png'
+                    point.style.iconstyle.icon.href = base_url + "wht-" + shape + ".png"
                 else:
-                    point.style.iconstyle.icon.href = base_url + shape + '.png'
+                    point.style.iconstyle.icon.href = base_url + shape + ".png"
             else:
-                base_url = f'http://maps.google.com/mapfiles/kml/paddle/wht-{shape}-lv'
-                point.style.iconstyle.icon.href = base_url + '.png'
+                base_url = f"http://maps.google.com/mapfiles/kml/paddle/wht-{shape}-lv"
+                point.style.iconstyle.icon.href = base_url + ".png"
 
             # point.style.iconstyle.color = 'ff' + color
             point.style.iconstyle.color = color
 
     def add_folder(self, parent_folder=None, name=None):
         if name is None:
-            name = 'New Folder'
+            name = "New Folder"
         if parent_folder is not None:
             new_folder = parent_folder.newfolder(name=name)
         else:
@@ -168,23 +175,34 @@ class KmlCreator(object):
         return new_folder
 
     def __get_arrow_icon_filepath(self, color, angle_degrees, size_string=None) -> str:
-        kml_folder = '.'
+        kml_folder = "."
         if self.kml_filepath is not None:
             kml_folder = os.path.dirname(self.kml_filepath)
         angle_step = 360.0 / self.__num_arrow_icon_files
-        angle_idx = int(angle_degrees/angle_step)
+        angle_idx = int(angle_degrees / angle_step)
         if size_string is None:
-            arrow_filename = 'arrow_%02x%02x%02x_%02d.png' % (color[0], color[1], color[2], angle_idx)
+            arrow_filename = "arrow_%02x%02x%02x_%02d.png" % (
+                color[0],
+                color[1],
+                color[2],
+                angle_idx,
+            )
         else:
-            arrow_filename = 'arrow_%02x%02x%02x_%02d_%s.png' % (color[0], color[1], color[2], angle_idx, size_string)
-        f_path = f'{kml_folder}\\files\\{arrow_filename}'
+            arrow_filename = "arrow_%02x%02x%02x_%02d_%s.png" % (
+                color[0],
+                color[1],
+                color[2],
+                angle_idx,
+                size_string,
+            )
+        f_path = f"{kml_folder}\\files\\{arrow_filename}"
         return f_path
 
     def add_arrow_icons_to_kml(self, color=None, dim=None, angle_degrees=None):
         # dim = (w, h)
         kml_folder = os.path.dirname(self.kml_filepath)
         gen_funcs = GenFuncs()
-        gen_funcs.create_dir(kml_folder + '\\files')
+        gen_funcs.create_dir(kml_folder + "\\files")
         use_color = (0, 0, 0)
         if color is not None:
             use_color = (color[0], color[1], color[2])
@@ -192,13 +210,29 @@ class KmlCreator(object):
         angle_step = 360 / self.__num_arrow_icon_files
         while angle <= 360.0:
             f_path = self.__get_arrow_icon_filepath(use_color, angle)
-            fi = ImageFuncs.draw_arrow(size='tiny', fill_color=use_color, outline_color=use_color, angle_degrees=angle)
+            fi = ImageFuncs.draw_arrow(
+                size="tiny",
+                fill_color=use_color,
+                outline_color=use_color,
+                angle_degrees=angle,
+            )
             angle = int(angle + angle_step)
             if f_path not in self.__arrow_icons_added:
                 self.__arrow_icons_added.append(f_path)
 
-    def add_arrow_icon(self, lat, lon, parent_node=None, altitude=None, angle_degrees=0, name=None,
-                       description=None, color=None, date_time_string=None, arrow_dim=(8, 16)):
+    def add_arrow_icon(
+        self,
+        lat,
+        lon,
+        parent_node=None,
+        altitude=None,
+        angle_degrees=0,
+        name=None,
+        description=None,
+        color=None,
+        date_time_string=None,
+        arrow_dim=(8, 16),
+    ):
         if color is None:
             color = [0, 0, 0]
         if parent_node is None:
@@ -215,19 +249,34 @@ class KmlCreator(object):
         if description is not None:
             pnt.description = description
         if date_time_string is not None:
-            pnt.timestamp.when = GenFuncs.datetime_string_to_format(time_string=date_time_string,
-                                                                    in_format='1980-01-01%H:%M:%SZ')
+            pnt.timestamp.when = GenFuncs.datetime_string_to_format(
+                time_string=date_time_string, in_format="1980-01-01%H:%M:%SZ"
+            )
 
-        size_string = '%dw%dh' % (arrow_dim[0], arrow_dim[1])
-        arrow_icon_path = self.__get_arrow_icon_filepath(color, angle_degrees, size_string=size_string)
+        size_string = "%dw%dh" % (arrow_dim[0], arrow_dim[1])
+        arrow_icon_path = self.__get_arrow_icon_filepath(
+            color, angle_degrees, size_string=size_string
+        )
         arrow_icon_name = os.path.basename(arrow_icon_path)
         if arrow_icon_path not in self.__arrow_icons_added:
-            self.add_arrow_icons_to_kml(color, dim=arrow_dim, angle_degrees=angle_degrees)
-        pnt.style.iconstyle.icon.href = 'files/%s' % arrow_icon_name
+            self.add_arrow_icons_to_kml(
+                color, dim=arrow_dim, angle_degrees=angle_degrees
+            )
+        pnt.style.iconstyle.icon.href = "files/%s" % arrow_icon_name
         return pnt
 
-    def add_point(self, lat, lon, parent_node=None, altitude=None, name=None, description=None,
-                  time_stamp=None, shape=None, color=None):
+    def add_point(
+        self,
+        lat,
+        lon,
+        parent_node=None,
+        altitude=None,
+        name=None,
+        description=None,
+        time_stamp=None,
+        shape=None,
+        color=None,
+    ):
         if parent_node is None:
             parent_node = self.kml
         if name is not None:
@@ -254,12 +303,28 @@ class KmlCreator(object):
     def add_points(self, lat_lon_list, shape=None, color=None):
         for lat_lon in lat_lon_list:
             if len(lat_lon) > 2:
-                self.add_point(lat_lon[0], lat_lon[1], altitude=lat_lon[2], shape=shape, color=color)
+                self.add_point(
+                    lat_lon[0],
+                    lat_lon[1],
+                    altitude=lat_lon[2],
+                    shape=shape,
+                    color=color,
+                )
             else:
                 self.add_point(lat_lon[0], lat_lon[1], shape=shape, color=color)
 
-    def add_diamond(self, lat, lon, size=1, filled=True, parent_node=None,
-                    color=None, opacity=100, name=None, description=None):
+    def add_diamond(
+        self,
+        lat,
+        lon,
+        size=1,
+        filled=True,
+        parent_node=None,
+        color=None,
+        opacity=100,
+        name=None,
+        description=None,
+    ):
         """
         This is a special point, made here as tiny polygon. The reason for this is to allow it to be of any color
         as per [R, G, B]
@@ -283,11 +348,26 @@ class KmlCreator(object):
         if size is None:
             size = 1
         size = size * 0.001
-        [lat1, lat2, lat3, lat4, lat5] = [lat, (lat + size), lat, (lat-size), lat]
-        [lon1, lon2, lon3, lon4, lon5] = [(lon-size), lon, (lon+size), lon, (lon-size)]
+        [lat1, lat2, lat3, lat4, lat5] = [lat, (lat + size), lat, (lat - size), lat]
+        [lon1, lon2, lon3, lon4, lon5] = [
+            (lon - size),
+            lon,
+            (lon + size),
+            lon,
+            (lon - size),
+        ]
 
-    def add_polygon(self, lat_lon_list, filled=True, line_width=1, parent_node=None,
-                    color=None, opacity=50, name=None, description=None) -> None:
+    def add_polygon(
+        self,
+        lat_lon_list,
+        filled=True,
+        line_width=1,
+        parent_node=None,
+        color=None,
+        opacity=50,
+        name=None,
+        description=None,
+    ) -> None:
         """
         Parameters
         __________
@@ -325,27 +405,49 @@ class KmlCreator(object):
 
             if color is not None:
                 rgb_color = simplekml.Color.rgb(color[0], color[1], color[2])
-                alpha = int(255 * opacity/100)
-                pol.style.polystyle.color = simplekml.Color.changealphaint(alpha, rgb_color)
+                alpha = int(255 * opacity / 100)
+                pol.style.polystyle.color = simplekml.Color.changealphaint(
+                    alpha, rgb_color
+                )
         else:
             pol.coords = swapped_lat_lon
             pol.style.linestyle.width = line_width
 
             if color is not None:
                 rgb_color = simplekml.Color.rgb(color[0], color[1], color[2])
-                alpha = int(255 * opacity/100)
-                pol.style.polystyle.color = simplekml.Color.changealphaint(alpha, rgb_color)
+                alpha = int(255 * opacity / 100)
+                pol.style.polystyle.color = simplekml.Color.changealphaint(
+                    alpha, rgb_color
+                )
 
-    def add_3d_polygon(self, lla_list, filled=True, line_width=1,
-                       parent_node=None, color=None, opacity=50, name=None, description=None) -> None:
+    def add_3d_polygon(
+        self,
+        lla_list,
+        filled=True,
+        line_width=1,
+        parent_node=None,
+        color=None,
+        opacity=50,
+        name=None,
+        description=None,
+    ) -> None:
         """
         Create a 3 dimensional airspace plot
         lla_list:
         """
         pass
 
-    def add_special(self, lat, lon, base_shape, parent_node=None, name=None, description=None,
-                    shape=None, color=None):
+    def add_special(
+        self,
+        lat,
+        lon,
+        base_shape,
+        parent_node=None,
+        name=None,
+        description=None,
+        shape=None,
+        color=None,
+    ):
         """
         Special function for SPA Workgroup kml creation
         """
@@ -364,12 +466,22 @@ class KmlCreator(object):
             pnt.description = description
 
         if shape is not None:
-            self.__set_point_icon_href(point=pnt, shape=shape, color=color, base_shape=base_shape)
+            self.__set_point_icon_href(
+                point=pnt, shape=shape, color=color, base_shape=base_shape
+            )
 
         return pnt
 
-    def add_tiles(self, tile_coordinates, line_width=1, parent_node=None,
-                  color=None, opacity=50, name=None, description=None) -> None:
+    def add_tiles(
+        self,
+        tile_coordinates,
+        line_width=1,
+        parent_node=None,
+        color=None,
+        opacity=50,
+        name=None,
+        description=None,
+    ) -> None:
         """
         Parameters
         __________
@@ -399,17 +511,21 @@ class KmlCreator(object):
             pol.style.linestyle.width = 1
             if color is not None:
                 rgb_color = simplekml.Color.rgb(color[0], color[1], color[2])
-                alpha = int(255 * opacity/100)
-                pol.style.polystyle.color = simplekml.Color.changealphaint(alpha, rgb_color)
-                pol.style.linestyle.color = simplekml.Color.changealphaint(alpha, rgb_color)
+                alpha = int(255 * opacity / 100)
+                pol.style.polystyle.color = simplekml.Color.changealphaint(
+                    alpha, rgb_color
+                )
+                pol.style.linestyle.color = simplekml.Color.changealphaint(
+                    alpha, rgb_color
+                )
 
     def save(self, pretty=True):
         kml_folder = os.path.dirname(self.kml_filepath)
         if (len(kml_folder) == 0) or (kml_folder is None):
-            kml_folder = '.'
+            kml_folder = "."
 
-        kmz_file_path = self.kml_filepath.replace('.kml', '.kmz')
-        kml_file_path = self.kml_filepath.replace('.kmz', '.kml')
+        kmz_file_path = self.kml_filepath.replace(".kml", ".kmz")
+        kml_file_path = self.kml_filepath.replace(".kmz", ".kml")
 
         kmz_file_name = os.path.basename(kmz_file_path)
         kml_file_name = os.path.basename(kml_file_path)
@@ -419,20 +535,20 @@ class KmlCreator(object):
         if pretty:
             self.kml.save(kml_file_name)
         else:
-            fp = gen_funcs.open_file(kml_file_name, 'w')
+            fp = gen_funcs.open_file(kml_file_name, "w")
             fp.write(str(self.kml.document))
             fp.close()
 
-        if ('.kmz' in self.kml_filepath) or (len(self.__arrow_icons_added) > 0):
+        if (".kmz" in self.kml_filepath) or (len(self.__arrow_icons_added) > 0):
             gen_funcs.delete_file(kmz_file_name)
-            with ZipFile(kmz_file_name, 'w') as zip:
+            with ZipFile(kmz_file_name, "w") as zip:
                 if len(self.__arrow_icons_added) > 0:
                     for arrow_icon_file in self.__arrow_icons_added:
-                        f_name = 'files\\' + os.path.basename(arrow_icon_file)
+                        f_name = "files\\" + os.path.basename(arrow_icon_file)
                         zip.write(kml_file_name)
 
             gen_funcs.delete_file(kml_file_name)
-            gen_funcs.delete_dir('files')
+            gen_funcs.delete_dir("files")
             return_val = kml_file_path
         else:
             return_val = kml_file_path
@@ -475,18 +591,18 @@ class GenFuncs(object):
             try:
                 os.makedirs(Path(dir_path), exist_ok=True)
             except OSError as e:
-                err = str(e) + f'({Path(dir_path)})'
+                err = str(e) + f"({Path(dir_path)})"
             assert err is None, err
 
     @staticmethod
     def split_filepath(in_path) -> dict:
         head_tail = os.path.split(Path(in_path))
-        return {'path': head_tail[0], 'file_name': head_tail[1]}
+        return {"path": head_tail[0], "file_name": head_tail[1]}
 
     @staticmethod
     def split_filename(in_file) -> dict:
         name_ext = os.path.splitext(in_file)
-        return {'name': name_ext[0], 'ext': name_ext[1]}
+        return {"name": name_ext[0], "ext": name_ext[1]}
 
     @staticmethod
     def delete_file(file_path):
@@ -501,7 +617,7 @@ class GenFuncs(object):
 
     @staticmethod
     def convert_time_string_to_milliseconds(time_string) -> int:
-        time_list = time_string.split(':')
+        time_list = time_string.split(":")
         idx = 0
         hh = 0
         mm = 0
@@ -515,41 +631,45 @@ class GenFuncs(object):
         if len(time_list) >= 1:
             ss_nnn = time_list[idx]
 
-        milli_seconds = int(((float(hh)*3600) + (float(mm)*60) + float(ss_nnn)) * 1000)
+        milli_seconds = int(
+            ((float(hh) * 3600) + (float(mm) * 60) + float(ss_nnn)) * 1000
+        )
         return milli_seconds
 
     @staticmethod
     def secs_to_time_string(secs) -> str:
-        min = int((int(secs)/60))
-        sec = int(secs) - int(min*60)
-        hr = int(min/60)
-        min = min - (hr*60)
-        retval = ''
+        min = int((int(secs) / 60))
+        sec = int(secs) - int(min * 60)
+        hr = int(min / 60)
+        min = min - (hr * 60)
+        retval = ""
         if hr > 0:
-            retval = '%02d:%02d:%02d hours' % (hr,min,sec)
+            retval = "%02d:%02d:%02d hours" % (hr, min, sec)
         elif min > 0:
-            retval = '%02d:%02d mins' % (min, sec)
+            retval = "%02d:%02d mins" % (min, sec)
         else:
-            retval = '%02d secs' % sec
+            retval = "%02d secs" % sec
 
         return retval
 
     @staticmethod
     def time_now(show_date=True, show_time=True) -> str:
         now = datetime.datetime.now()
-        retval = now.strftime('%Y-%m-%d %H:%M:%S')
+        retval = now.strftime("%Y-%m-%d %H:%M:%S")
         if not show_date and show_time:
-            retval = now.strftime('%H:%M:%S')
+            retval = now.strftime("%H:%M:%S")
 
         return retval
 
     @staticmethod
-    def datetime_string_to_format(date_string=None, time_string=None, in_format=None) -> str:
+    def datetime_string_to_format(
+        date_string=None, time_string=None, in_format=None
+    ) -> str:
         dd = 0
         mm = 0
         yyyy = 0
         if date_string is not None:
-            date_list = date_string.split('/')
+            date_list = date_string.split("/")
             if len(date_list) >= 3:
                 mm = int(date_list[0])
                 dd = int(date_list[1])
@@ -560,7 +680,7 @@ class GenFuncs(object):
             mm = 0
             ss = 0
             nnn = 0
-            time_list = time_string.split(':')
+            time_list = time_string.split(":")
             idx = 0
             if len(time_list) >= 3:
                 hh = int(time_list[idx])
@@ -569,18 +689,22 @@ class GenFuncs(object):
                 mm = int(time_list[idx])
                 idx += 1
             if len(time_list) >= 1:
-                ss_nnn = time_list[idx].split('.')
+                ss_nnn = time_list[idx].split(".")
                 ss = int(ss_nnn[0])
                 if len(ss_nnn) > 1:
                     nnn = int(ss_nnn[1])
 
         d_time = None
         if (date_string is not None) and (time_string is not None):
-            d_time = datetime.datetime(year=yyyy, month=mm, day=dd, hour=hh, second=ss, microsecond=nnn*1000)
+            d_time = datetime.datetime(
+                year=yyyy, month=mm, day=dd, hour=hh, second=ss, microsecond=nnn * 1000
+            )
         elif (date_string is not None) and (time_string is None):
             d_time = datetime.datetime(year=yyyy, month=mm, day=dd)
         elif (date_string is None) and (time_string is not None):
-            d_time = datetime.time(hour=hh, minute=mm, second=ss, microsecond=nnn*1000)
+            d_time = datetime.time(
+                hour=hh, minute=mm, second=ss, microsecond=nnn * 1000
+            )
 
         formatted_time_str = None
         if d_time is not None:
@@ -589,11 +713,11 @@ class GenFuncs(object):
         return formatted_time_str
 
     @staticmethod
-    def csv_split(s1, delim=',') -> list:
+    def csv_split(s1, delim=",") -> list:
         ret_list = []
         if s1 is None:
             return ret_list
-        if s1.strip() == '':
+        if s1.strip() == "":
             return ret_list
 
         return s1.split(delim)
@@ -633,7 +757,7 @@ class ImageFuncs(object):
         ImageFuncs.show_image(img_path, self.__im__)
 
     @staticmethod
-    def save_image(out_img_path, out_format='JPEG', img_path=None, im=None):
+    def save_image(out_img_path, out_format="JPEG", img_path=None, im=None):
         """
         Create an output image file
         If img_path is not specified, im MUST be specified and will be used
@@ -647,7 +771,7 @@ class ImageFuncs(object):
             return False
         im.save(out_img_path, format=out_format)
 
-    def save(self, out_img_path, out_format='JPEG', in_img_path=None):
+    def save(self, out_img_path, out_format="JPEG", in_img_path=None):
         ImageFuncs.save_image(out_img_path, out_format, in_img_path, self.__im__)
 
     @staticmethod
@@ -666,7 +790,9 @@ class ImageFuncs(object):
         return ImageFuncs.get_image_size(im=self.__im__)
 
     @staticmethod
-    def resize_image(img_path=None, im=None, width=None, height=None, retain_aspect=False):
+    def resize_image(
+        img_path=None, im=None, width=None, height=None, retain_aspect=False
+    ):
         """
         If retain_aspect is True, and both width and height are given, then only width is used
         """
@@ -693,10 +819,12 @@ class ImageFuncs(object):
         return im.resize((use_width, use_height), Image.ANTIALIAS)
 
     def resize(self, width=None, height=None, retain_aspect=False):
-        self.__im__ = ImageFuncs.resize_image(im=self.__im__, width=width, height=height, retain_aspect=retain_aspect)
+        self.__im__ = ImageFuncs.resize_image(
+            im=self.__im__, width=width, height=height, retain_aspect=retain_aspect
+        )
 
     @staticmethod
-    def crop_image(img_path=None, im=None, width=None, height=None, align='center'):
+    def crop_image(img_path=None, im=None, width=None, height=None, align="center"):
         """
         align='center': crop width both sides and height both sides
         align='top': crop width both sides and height bottom
@@ -717,30 +845,36 @@ class ImageFuncs(object):
                 width = in_width
             if height is None:
                 height = in_height
-            delta_width = (in_width - width)
-            delta_height = (in_height - height)
+            delta_width = in_width - width
+            delta_height = in_height - height
 
             # Default center crop
-            (left, top, right, bottom) = (delta_width/2,
-                                          delta_height/2,
-                                          (in_width - delta_width/2),
-                                          (in_height - delta_height))
-            if 'top' in align:
+            (left, top, right, bottom) = (
+                delta_width / 2,
+                delta_height / 2,
+                (in_width - delta_width / 2),
+                (in_height - delta_height),
+            )
+            if "top" in align:
                 (top, bottom) = (0, in_height - delta_height)
-            if 'bottom' in align:
+            if "bottom" in align:
                 (top, bottom) = (delta_height, in_height)
-            if 'left' in align:
+            if "left" in align:
                 (left, right) = (0, in_width - delta_width)
-            if 'right' in align:
+            if "right" in align:
                 (left, right) = (delta_width, in_width)
 
             return im.crop((left, top, right, bottom))
 
-    def crop(self, width=None, height=None, align='center'):
-        self.__im__ = ImageFuncs.crop_image(im=self.__im__, width=width, height=height, align=align)
+    def crop(self, width=None, height=None, align="center"):
+        self.__im__ = ImageFuncs.crop_image(
+            im=self.__im__, width=width, height=height, align=align
+        )
 
     @staticmethod
-    def rotate_image(img_path=None, im=None, angle_degrees=90, direction='right', expand=True):
+    def rotate_image(
+        img_path=None, im=None, angle_degrees=90, direction="right", expand=True
+    ):
         """
         Rotates the image in direction by angle degrees, where 0 = UP
         direction = 'right' or 'left'
@@ -751,17 +885,23 @@ class ImageFuncs(object):
         if im is None:
             return None
 
-        if 'right' in direction:
+        if "right" in direction:
             angle_degrees = 360 - angle_degrees
 
         return im.rotate(angle_degrees, expand=expand)
 
-    def rotate(self, angle_degrees=90, direction='right', expand=True):
-        self.__im__ = ImageFuncs.rotate_image(im=self.__im__, angle_degrees=angle_degrees,
-                                              direction=direction, expand=expand)
+    def rotate(self, angle_degrees=90, direction="right", expand=True):
+        self.__im__ = ImageFuncs.rotate_image(
+            im=self.__im__,
+            angle_degrees=angle_degrees,
+            direction=direction,
+            expand=expand,
+        )
 
     @staticmethod
-    def draw_polygon_image(xy_list, im=None, fill_color=(255, 0, 0), outline_color = (0, 0, 255)):
+    def draw_polygon_image(
+        xy_list, im=None, fill_color=(255, 0, 0), outline_color=(0, 0, 255)
+    ):
         """
         Specify xy_list as ( (x1, y1), (x2, y2), (x3, y3), .... (xn, yn) )
         """
@@ -776,47 +916,55 @@ class ImageFuncs(object):
             if (max_y < 0) or (max_y < xy[1]):
                 max_y = xy[1]
 
-        width = (max_x - min_x)
-        height = (max_y - min_y)
+        width = max_x - min_x
+        height = max_y - min_y
         if im is None:
-            im = Image.new('RGBA', (width, height))
+            im = Image.new("RGBA", (width, height))
         draw = ImageDraw.Draw(im)
         draw.polygon(xy_list, fill=fill_color, outline=outline_color)
         return im
 
     @staticmethod
-    def draw_arrow(im=None, dim=None, size='small',
-                   fill_color=(255, 0, 0), outline_color=(0, 0, 255), angle_degrees=90):
+    def draw_arrow(
+        im=None,
+        dim=None,
+        size="small",
+        fill_color=(255, 0, 0),
+        outline_color=(0, 0, 255),
+        angle_degrees=90,
+    ):
         """
-            if dim is specified as (width,height):
-                size is ignored
-            else:
-                size == tiny  = (width,height) = (24,12)
-                size == small  = (width,height) = (50,25)
-                size == medium = (width,height) = (100,50)
-                size == large = (width,height) = (200,100)
+        if dim is specified as (width,height):
+            size is ignored
+        else:
+            size == tiny  = (width,height) = (24,12)
+            size == small  = (width,height) = (50,25)
+            size == medium = (width,height) = (100,50)
+            size == large = (width,height) = (200,100)
         """
         if dim is None:
-            if 'tiny' in size:
+            if "tiny" in size:
                 (width, height) = (8, 16)
-            if 'small' in size:
+            if "small" in size:
                 (width, height) = (16, 32)
-            if 'medium' in size:
+            if "medium" in size:
                 (width, height) = (24, 48)
-            if 'large' in size:
+            if "large" in size:
                 (width, height) = (32, 64)
         else:
             (width, height) = dim
 
-        xy_list = ((0, 0), (width, 0), (int(width/2), height), (0, 0))
-        arrow_im = ImageFuncs.draw_polygon_image(xy_list, im=im, fill_color=fill_color, outline_color=outline_color)
+        xy_list = ((0, 0), (width, 0), (int(width / 2), height), (0, 0))
+        arrow_im = ImageFuncs.draw_polygon_image(
+            xy_list, im=im, fill_color=fill_color, outline_color=outline_color
+        )
         # Angle currently pointing downwards, below we rotate it to point up
         arrow_im = ImageFuncs.rotate_image(im=arrow_im, angle_degrees=180)
         # Now the arrow will be rotated correctly to what the user specified
         return ImageFuncs.rotate_image(im=arrow_im, angle_degrees=angle_degrees)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     f = GenFuncs()
     test_num = [5]
     for test in test_num:
@@ -824,34 +972,46 @@ if __name__ == '__main__':
             """
             Test both 'split' methods
             """
-            fs = f.split_filepath('C:\\tmpa\\tmpb\\tmpc\\abcd.out')
+            fs = f.split_filepath("C:\\tmpa\\tmpb\\tmpc\\abcd.out")
             print(f'dir = {fs["path"]}\nfile = {fs["file_name"]}')
-            ne = f.split_filename(fs['file_name'])
+            ne = f.split_filename(fs["file_name"])
             print(f'name = {ne["name"]}\next = {ne["ext"]}')
         if test == 2:
             """
             Test the milliseconds conversion
             """
-            print(f.convert_time_string_to_milliseconds('14:09:59.236'))
-            print(f.convert_time_string_to_milliseconds('09:59.236'))
-            print(f.convert_time_string_to_milliseconds('1'))
-            print(f.convert_time_string_to_milliseconds('1:0'))
-            print(f.convert_time_string_to_milliseconds('1:0:0'))
+            print(f.convert_time_string_to_milliseconds("14:09:59.236"))
+            print(f.convert_time_string_to_milliseconds("09:59.236"))
+            print(f.convert_time_string_to_milliseconds("1"))
+            print(f.convert_time_string_to_milliseconds("1:0"))
+            print(f.convert_time_string_to_milliseconds("1:0:0"))
         if test == 3:
             """
             Test the datetime conversion
             """
-            print(f.datetime_string_to_format('1/10/1988', '1:2:3.4', '%d/%m/%Y %H-%M-%S'))
+            print(
+                f.datetime_string_to_format("1/10/1988", "1:2:3.4", "%d/%m/%Y %H-%M-%S")
+            )
         if test == 4:
             kml = KmlCreator()
-            kml.create_kml('test.kml')
-            kml.add_point(40.782778, -73.970833,altitude=1000,name="NYC",shape="arrow:0")
-            kml.add_point(39.952222, -75.165000,name="PHL",shape="square",color="red")
+            kml.create_kml("test.kml")
+            kml.add_point(
+                40.782778, -73.970833, altitude=1000, name="NYC", shape="arrow:0"
+            )
+            kml.add_point(
+                39.952222, -75.165000, name="PHL", shape="square", color="red"
+            )
 
             kml.add_polygon(
-                [(40.782778, -73.970833), (40.782778, -75.165000), (39.952222, -75.165000), (39.952222, -73.970833)],
+                [
+                    (40.782778, -73.970833),
+                    (40.782778, -75.165000),
+                    (39.952222, -75.165000),
+                    (39.952222, -73.970833),
+                ],
                 color=[0xFF, 0x00, 0x00],
-                opacity=45)
+                opacity=45,
+            )
             kml.save()
         if test == 5:
-            p = Parser('../data/Tracy SFOW.kml')
+            p = Parser("../data/Tracy SFOW.kml")
