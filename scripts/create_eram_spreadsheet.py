@@ -57,7 +57,7 @@ def create_sensor_list():
         radio_df = pd.DataFrame({'radios': curr_radios})
         df = pd.concat([radar_df, radio_df], ignore_index=False, axis=1)
 
-        df.to_excel(writer, sheet_name=site)
+        df.to_excel(writer, sheet_name=site, index=False)
 
     writer.save()
 

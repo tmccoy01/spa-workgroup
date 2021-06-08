@@ -1,7 +1,8 @@
 DATA_PATH = "/Users/tannermccoy/Development/Work/config"
-RADARS = (
+RADARS_WITH_CLASS = (
     DATA_PATH + "/SBS_Service_Volume_Description_Document_v4.9.1_dated_2018-10-16.xlsx"
 )
+RADARS= DATA_PATH + "/Radars_ALL.xlsx"
 RADIOS = DATA_PATH + "/radio_locations.xlsx"
 
 """ Constants """

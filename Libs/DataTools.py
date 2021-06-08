@@ -4,14 +4,17 @@ import collections
 import pandas as pd
 
 # Lib imports
-from constants import RADARS, RADIOS, SV_LIST
+from constants import RADARS, RADIOS, RADARS_WITH_CLASS, SV_LIST
 import GeoTools
 
 
 class SurveillanceSystem(object):
     """Main parent class to carry all data for NAS Surveillance Systems"""
 
-    def __init__(self, sv_path=RADARS, radio_path=RADIOS, radar_path=RADARS):
+    def __init__(
+            self, sv_path=RADARS, radio_path=RADIOS, radar_path=RADARS,
+            radar_class_path=RADARS_WITH_CLASS
+    ):
         # Public attributes
         self.sv_bounds = collections.defaultdict(list)
         self.airspace_info = collections.defaultdict(list)
@@ -27,6 +30,7 @@ class SurveillanceSystem(object):
         self._sv_path = sv_path
         self._radio_path = radio_path
         self._radar_path = radar_path
+        self._radar_class_path = radar_class_path
         self._geo = GeoTools.Geo()
 
     def load_radios(self, _filter: str = None):
@@ -144,6 +148,29 @@ class Terminal(SurveillanceSystem):
         self.psr_type = list(set(self.radars["PSR Type"].to_list()))
         self.ssr_type = list(set(self.radars["SSR Type"].to_list()))
         self.site_list = set(self.radars["SDP1"].to_list())
+
+    def load_radars_with_class(self):
+        """might not be needed"""
+        pass
+        # radar_df = pd.read_excel(self._radar_class_path, sheet_name="Terminal Radars")
+        # radar_df = radar_df[
+        #     [
+        #         "Radar_Name",
+        #         "Radar_ID",
+        #         "SDP1",
+        #         "Radar_Lat",
+        #         "Radar_Lon",
+        #         "SSR Type",
+        #         "PSR Type",
+        #         "Airspace_ID",
+        #     ]
+        # ]
+        #
+        # radar_df = radar_df[:256].dropna(how="all", subset=["SSR Type", "PSR Type"])
+        # self.radars = radar_df[radar_df["SSR Type"] != "WAM"]
+        # self.psr_type = list(set(self.radars["PSR Type"].to_list()))
+        # self.ssr_type = list(set(self.radars["SSR Type"].to_list()))
+        # self.site_list = set(self.radars["SDP1"].to_list())
 
 
 class EnRoute(SurveillanceSystem):
